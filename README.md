@@ -4,6 +4,16 @@
 
 ---
 
+## Instalación Rápida
+
+1. Descargar e instalar [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) en iOS
+2. Copiar el contenido de [`widget-vuelos-naabol.js`](./widget-vuelos-naabol.js) en un nuevo script
+3. Agregar un widget Scriptable a la pantalla de inicio
+4. Configurar el widget para usar el script creado
+5. (Opcional) En "Widget Parameter" escribir el código del aeropuerto (ej: `LPB`)
+
+---
+
 ## 1. Propósito
 
 Este widget muestra las salidas de vuelos en tiempo casi real desde aeropuertos administrados por NAABOL (Bolivia), utilizando la app Scriptable en iOS.
