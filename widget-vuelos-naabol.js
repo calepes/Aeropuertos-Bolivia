@@ -41,8 +41,8 @@ const URL_OPS =
  ***********************/
 const ZEBRA_BG = Color.dynamic(new Color("#F2F2F7"), new Color("#2C2C2E"));
 const CANCEL_BG = Color.dynamic(new Color("#FFE5E5"), new Color("#3A1E1E"));
-const PRE_BG = Color.dynamic(new Color("#E5F0FF"), new Color("#1E2A3A"));
-const EMB_BG = Color.dynamic(new Color("#E5FFE5"), new Color("#1E3A1E"));
+const PRE_COLOR = Color.dynamic(new Color("#007AFF"), new Color("#64B5F6"));
+const EMB_COLOR = Color.dynamic(new Color("#34C759"), new Color("#81C784"));
 
 /***********************
  * IATA MAPS
@@ -274,8 +274,6 @@ for (let i = 0; i < flights.length; i++) {
   bg.layoutVertically();
 
   if (f.est.canceled) bg.backgroundColor = CANCEL_BG;
-  else if (f.est.preBoarding) bg.backgroundColor = PRE_BG;
-  else if (f.est.boarding) bg.backgroundColor = EMB_BG;
   else if (i % 2 === 1) bg.backgroundColor = ZEBRA_BG;
 
   bg.cornerRadius = 8;
@@ -291,6 +289,10 @@ for (let i = 0; i < flights.length; i++) {
     t.font = j <= 2
       ? Font.mediumMonospacedSystemFont(13)
       : Font.systemFont(12);
+    if (j === 3) {
+      if (f.est.preBoarding) t.textColor = PRE_COLOR;
+      else if (f.est.boarding) t.textColor = EMB_COLOR;
+    }
   });
 
   w.addSpacer(2);
