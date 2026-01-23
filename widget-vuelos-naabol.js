@@ -214,7 +214,9 @@ for (const o of ops) {
 const now = Date.now();
 const max = now + HOURS_AHEAD * 3600 * 1000;
 
-const flights = (itin || [])
+// Vuelos del itinerario
+const seenFlights = new Set();
+const flightsFromItin = (itin || [])
   .map(f => {
     const prog = todayWithHHMM(f.HORA_PROGRAMADA || f.HORA_ESTIMADA);
     if (!prog) return null;
@@ -222,9 +224,10 @@ const flights = (itin || [])
     const code = airlineCode(f.NOMBRE_AEROLINEA);
     const num = String(f.NRO_VUELO || "").trim();
     const vuelo = code ? `${code}${num}` : num;
+    seenFlights.add(vuelo);
 
     const op = opsMap[vuelo] || {};
-    const est = statusInfo(op.ESTADO || f.OBSERVACION);
+    const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
 
     return {
       prog,
@@ -232,10 +235,38 @@ const flights = (itin || [])
       ts: prog.getTime(),
       vuelo,
       est,
-      dest: destinationIATA(f.RUTA0 || f.RUTA)
+      dest: destinationIATA(f.RUTA0 || f.RUTA || op.DESTINO)
     };
   })
-  .filter(f => f && f.ts >= now && f.ts <= max)
+  .filter(f => f && f.ts >= now && f.ts <= max);
+
+// Vuelos solo en operativo (no en itinerario)
+const flightsFromOps = (ops || [])
+  .map(o => {
+    const code = airlineCode(o.NOMBRE_AEROLINEA);
+    const num = String(o.NRO_VUELO || "").trim();
+    const vuelo = code ? `${code}${num}` : num;
+
+    if (seenFlights.has(vuelo)) return null;
+
+    const prog = todayWithHHMM(o.HORA_ESTIMADA || o.HORA_PROGRAMADA);
+    if (!prog) return null;
+
+    const est = statusInfo(o.ESTADO || o.COMENTARIOS);
+
+    return {
+      prog,
+      real: todayWithHHMM(o.HORA_REAL || o.HORA_REAL_SALIDA),
+      ts: prog.getTime(),
+      vuelo,
+      est,
+      dest: destinationIATA(o.DESTINO || o.RUTA)
+    };
+  })
+  .filter(f => f && f.ts >= now && f.ts <= max);
+
+// Combinar y ordenar
+const flights = [...flightsFromItin, ...flightsFromOps]
   .sort((a, b) => a.ts - b.ts)
   .slice(0, MAX_FLIGHTS);
 
