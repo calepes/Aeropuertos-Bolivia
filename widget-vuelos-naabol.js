@@ -43,6 +43,7 @@ const ZEBRA_BG = Color.dynamic(new Color("#F2F2F7"), new Color("#2C2C2E"));
 const CANCEL_BG = Color.dynamic(new Color("#FFE5E5"), new Color("#3A1E1E"));
 const PRE_COLOR = Color.dynamic(new Color("#007AFF"), new Color("#64B5F6"));
 const EMB_COLOR = Color.dynamic(new Color("#34C759"), new Color("#81C784"));
+const DEM_COLOR = Color.dynamic(new Color("#FF3B30"), new Color("#FF6961"));
 
 /***********************
  * IATA MAPS
@@ -176,7 +177,7 @@ function statusInfo(obs) {
   const s = (obs || "").toUpperCase();
   if (s.includes("PRE")) return { text: "PRE", preBoarding: true };
   if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
-  if (s.includes("DEMOR")) return { text: "DEM" };
+  if (s.includes("DEMOR")) return { text: "DEM", delayed: true };
   if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
   return { text: "OK" };
 }
@@ -323,6 +324,7 @@ for (let i = 0; i < flights.length; i++) {
     if (j === 3) {
       if (f.est.preBoarding) t.textColor = PRE_COLOR;
       else if (f.est.boarding) t.textColor = EMB_COLOR;
+      else if (f.est.delayed) t.textColor = DEM_COLOR;
     }
   });
 
