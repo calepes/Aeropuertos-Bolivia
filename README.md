@@ -6,11 +6,24 @@
 
 ## Instalación Rápida
 
+### Opción 1: Loader automático (recomendado)
+
 1. Descargar e instalar [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) en iOS
-2. Copiar el contenido de [`widget-vuelos-naabol.js`](./widget-vuelos-naabol.js) en un nuevo script
+2. Copiar el contenido de [`loader-scriptable.js`](./loader-scriptable.js) en un nuevo script
 3. Agregar un widget Scriptable a la pantalla de inicio
 4. Configurar el widget para usar el script creado
 5. (Opcional) En "Widget Parameter" escribir el código del aeropuerto (ej: `LPB`)
+
+El loader descarga automáticamente la última versión del widget desde GitHub cada vez que se ejecuta, y mantiene una copia en cache local (iCloud) para funcionar sin conexión.
+
+### Opción 2: Copia manual
+
+1. Copiar el contenido de [`widget-vuelos-naabol.js`](./widget-vuelos-naabol.js) en un nuevo script de Scriptable
+2. Agregar un widget Scriptable a la pantalla de inicio
+3. Configurar el widget para usar el script creado
+4. (Opcional) En "Widget Parameter" escribir el código del aeropuerto (ej: `LPB`)
+
+> **Nota:** Con esta opción deberás actualizar el código manualmente cada vez que haya cambios.
 
 ---
 
@@ -54,7 +67,8 @@ Para uso operativo o personal.
 - Llegadas
 - Scroll
 - Interacción táctil
-- Cache persistente
+
+> **Cache:** El loader incluye cache local en iCloud para funcionar sin conexión.
 
 ---
 
