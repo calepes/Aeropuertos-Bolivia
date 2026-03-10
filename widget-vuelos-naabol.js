@@ -239,7 +239,12 @@ const flightsFromItin = (itin || [])
       dest: destinationIATA(f.RUTA0 || f.RUTA || op.DESTINO)
     };
   })
-  .filter(f => f && f.ts >= now && f.ts <= max);
+  .filter(f => {
+    if (!f) return false;
+    const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+    if (active) return f.ts <= max;
+    return f.ts >= now && f.ts <= max;
+  });
 
 // Vuelos solo en operativo (no en itinerario)
 const flightsFromOps = (ops || [])
@@ -264,7 +269,12 @@ const flightsFromOps = (ops || [])
       dest: destinationIATA(o.DESTINO || o.RUTA)
     };
   })
-  .filter(f => f && f.ts >= now && f.ts <= max);
+  .filter(f => {
+    if (!f) return false;
+    const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+    if (active) return f.ts <= max;
+    return f.ts >= now && f.ts <= max;
+  });
 
 // Combinar y ordenar
 const flights = [...flightsFromItin, ...flightsFromOps]
