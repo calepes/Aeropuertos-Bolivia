@@ -177,7 +177,7 @@ function statusInfo(obs) {
   const s = (obs || "").toUpperCase();
   if (s.includes("PRE")) return { text: "PRE", preBoarding: true };
   if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
-  if (s.includes("DEMOR")) return { text: "DEM", delayed: true };
+  if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DEM", delayed: true };
   if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
   return { text: "OK" };
 }
@@ -242,7 +242,7 @@ const flightsFromItin = (itin || [])
   .filter(f => {
     if (!f) return false;
     const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
-    if (active) return f.ts <= max;
+    if (active) return true;
     return f.ts >= now && f.ts <= max;
   });
 
@@ -272,7 +272,7 @@ const flightsFromOps = (ops || [])
   .filter(f => {
     if (!f) return false;
     const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
-    if (active) return f.ts <= max;
+    if (active) return true;
     return f.ts >= now && f.ts <= max;
   });
 
