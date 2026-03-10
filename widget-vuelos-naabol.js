@@ -276,9 +276,13 @@ const flightsFromOps = (ops || [])
     return f.ts >= now && f.ts <= max;
   });
 
-// Combinar y ordenar
+// Combinar y ordenar (por hora real si existe, si no por programada)
 const flights = [...flightsFromItin, ...flightsFromOps]
-  .sort((a, b) => a.ts - b.ts)
+  .sort((a, b) => {
+    const tA = a.real ? a.real.getTime() : a.ts;
+    const tB = b.real ? b.real.getTime() : b.ts;
+    return tA - tB;
+  })
   .slice(0, MAX_FLIGHTS);
 
 /***********************
