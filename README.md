@@ -150,7 +150,9 @@ El widget solo muestra vuelos que salen dentro de las próximas X horas.
 | Ventana futura | 12 horas |
 | Máximo de vuelos mostrados | 10 |
 
-> Esto mantiene el widget limpio y relevante.
+> **Excepción:** Vuelos con estado activo (PRE, EMB, DEM) se muestran siempre, aunque su hora programada ya haya pasado. Esto evita que vuelos demorados desaparezcan del widget.
+
+Los vuelos se ordenan por hora real (si existe), caso contrario por hora programada. Esto replica el orden de la pantalla NAABOL.
 
 ---
 
@@ -178,13 +180,18 @@ Los estados se normalizan a códigos cortos.
 |--------|-------------|
 | PRE | Pre-embarque |
 | EMB | Embarcando / Abordando |
-| DEM | Demorado |
+| DEM | Demorado / Delayed |
 | CAN | Cancelado |
 | OK | Normal / Sin observación |
 
 ### Reglas visuales:
-- Si el vuelo está **cancelado**, toda la fila se pinta de rojo
+- **PRE** → texto azul
+- **EMB** → texto verde
+- **DEM** → texto rojo
+- **CAN** → fila con fondo rojo
 - **PRE** siempre tiene prioridad sobre EMB (evita errores de interpretación)
+
+> El estado se detecta tanto en español (DEMORADO, EMBARQUE) como en inglés (DELAYED, BOARDING).
 
 ---
 
