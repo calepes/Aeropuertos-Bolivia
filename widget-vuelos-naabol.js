@@ -308,7 +308,7 @@ const icon = hdr.addImage(sym.image);
 icon.imageSize = new Size(22, 22);
 icon.tintColor = HEADER_COLOR;
 hdr.addSpacer(6);
-const title = hdr.addText(`DEPARTURES`);
+const title = hdr.addText(`DEPARTURES - ${AIRPORT_PARAM}`);
 title.font = Font.boldMonospacedSystemFont(16);
 title.textColor = HEADER_COLOR;
 title.lineLimit = 1;
