@@ -322,7 +322,7 @@ const clock = hdr.addText(hhmm(new Date()));
 clock.font = Font.boldMonospacedSystemFont(16);
 clock.textColor = new Color("#4CAF50");
 
-w.addSpacer(6);
+w.addSpacer(10);
 
 // Helper: tira continua de cards (estilo split-flap real)
 // 21 cards/fila: TIME(6) + sep(1) + DST(3) + sep(1) + FLIGHT(6) + sep(1) + RMKS(3)
@@ -388,7 +388,7 @@ COL_LABELS.forEach((label, i) => {
   tx.textColor = COL_HEADER_COLOR;
 });
 
-w.addSpacer(4);
+w.addSpacer(6);
 
 // Filas de vuelos – tira continua de cards
 for (let i = 0; i < flights.length; i++) {
