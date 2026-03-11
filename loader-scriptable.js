@@ -7,7 +7,7 @@ const REPO_NAME = "widget-vuelos-bolivia";
 const BRANCH = "claude/review-repo-C5wso";
 const FILE = "widget-vuelos-naabol.js";
 
-const API_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/" + encodeURIComponent(BRANCH) + "/" + FILE;
+const API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE + "?ref=" + encodeURIComponent(BRANCH);
 
 const fm = FileManager.iCloud();
 const dir = fm.joinPath(fm.documentsDirectory(), "vuelos-cache");
@@ -22,6 +22,7 @@ let code;
 try {
   const req = new Request(API_URL);
   req.timeoutInterval = 10;
+  req.headers = { Accept: "application/vnd.github.v3.raw" };
   code = await req.loadString();
 
   if (code && code.length > 100 && !code.includes('"message":"Not Found"')) {
