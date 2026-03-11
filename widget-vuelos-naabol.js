@@ -353,6 +353,16 @@ function addBoardRow(parent, segments) {
     }
     for (const ch of seg.text) addCard(row, ch, seg.color);
   });
+  addCard(row, " ", TEXT_COLOR);
+}
+
+function addEmptyRow(parent) {
+  const totalChars = COL_CHARS.reduce((a, b) => a + b, 0)
+    + SEP_CARDS * (COL_CHARS.length - 1) + 1;
+  const row = parent.addStack();
+  row.layoutHorizontally();
+  row.spacing = 1;
+  for (let i = 0; i < totalChars; i++) addCard(row, " ", TEXT_COLOR);
 }
 
 // Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
@@ -406,6 +416,12 @@ for (let i = 0; i < flights.length; i++) {
     { text: f.est.text.padEnd(3).slice(0, 3), color: estColor }
   ]);
 
+  w.addSpacer(2);
+}
+
+// Rellenar hasta MAX_FLIGHTS con filas vacías
+for (let i = flights.length; i < MAX_FLIGHTS; i++) {
+  addEmptyRow(w);
   w.addSpacer(2);
 }
 
