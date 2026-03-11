@@ -352,6 +352,13 @@ function addFlapGroup(parent, text, color) {
   }
 }
 
+function addSepCard(parent) {
+  const sep = parent.addStack();
+  sep.size = new Size(GRP_GAP, FLAP_H);
+  sep.backgroundColor = CARD_BG;
+  sep.cornerRadius = 2;
+}
+
 // Columnas: HORA(5), DST(4), VUELO(6), REAL(5), EST(3)
 // Cards por columna (sin contar ":")
 const COL_CARDS = [4, 4, 6, 4, 3];
@@ -366,8 +373,9 @@ function colWidth(i) {
 
 const th = w.addStack();
 th.layoutHorizontally();
-th.spacing = GRP_GAP;
+th.spacing = 1;
 COL_LABELS.forEach((label, i) => {
+  if (i > 0) th.addSpacer(GRP_GAP);
   const s = th.addStack();
   s.size = new Size(colWidth(i), 0);
   s.centerAlignContent();
@@ -383,7 +391,7 @@ for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
   const row = w.addStack();
   row.layoutHorizontally();
-  row.spacing = GRP_GAP;
+  row.spacing = 1;
 
   const realStr = f.real ? hhmm(f.real) : "     ";
 
@@ -405,6 +413,7 @@ for (let i = 0; i < flights.length; i++) {
   const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, estColor];
 
   vals.forEach((val, j) => {
+    if (j > 0) addSepCard(row);
     addFlapGroup(row, val, colors[j]);
   });
 
