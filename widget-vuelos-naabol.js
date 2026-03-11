@@ -308,14 +308,18 @@ const icon = hdr.addImage(sym.image);
 icon.imageSize = new Size(22, 22);
 icon.tintColor = HEADER_COLOR;
 hdr.addSpacer(6);
-const title = hdr.addText(`DEPARTURES - ${AIRPORT_PARAM}`);
+const title = hdr.addText("DEPARTURES -");
 title.font = Font.boldMonospacedSystemFont(16);
 title.textColor = HEADER_COLOR;
 title.lineLimit = 1;
-hdr.addSpacer();
+hdr.addSpacer(6);
 const clock = hdr.addText(hhmm(new Date()));
 clock.font = Font.boldMonospacedSystemFont(16);
 clock.textColor = new Color("#4CAF50");
+hdr.addSpacer();
+const apt = hdr.addText(AIRPORT_PARAM);
+apt.font = Font.boldMonospacedSystemFont(16);
+apt.textColor = HEADER_COLOR;
 
 w.addSpacer(6);
 
@@ -353,6 +357,12 @@ function addBoardRow(parent, segments) {
     }
     for (const ch of seg.text) addCard(row, ch, seg.color);
   });
+  // Relleno: card que se estira hasta el borde derecho
+  const fill = row.addStack();
+  fill.layoutHorizontally();
+  fill.backgroundColor = CARD_BG;
+  fill.cornerRadius = 2;
+  fill.addSpacer();
 }
 
 // Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
