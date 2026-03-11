@@ -234,8 +234,10 @@ SANTA CRUZ - ASUNCION - MIAMI
 
 ### Resultado mostrado:
 ```
-VVI (2)
+VVI+
 ```
+
+El `+` indica que el vuelo tiene escalas adicionales. Vuelos directos muestran solo el código IATA con espacio: `VVI `.
 
 > Esto mantiene el widget legible sin perder información relevante.
 
@@ -255,12 +257,12 @@ El widget replica la estética de los tableros de salidas de aeropuerto clásico
 
 | Columna | Label | Chars | Descripción |
 |---------|-------|-------|-------------|
-| TIME | TIME | 6 | Hora (HH:MM) + indicador "U" si fue actualizada |
-| DST | DST | 3 | Destino IATA (código de 3 letras) |
-| FLIGHT | FLIGHT | 6 | Aerolínea + número de vuelo |
+| TIME | TIME | 5 | Hora (HH:MM) — naranja si fue actualizada, amarillo si es programada |
+| DST | DST | 4 | Destino IATA + `+` si tiene escalas (ej: `LIM+`) |
+| FLIGHT | FLIGHT | 7 | Aerolínea + número de vuelo |
 | RMKS | RMKS | 3 | Estado / Remarks |
 
-> **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME con una "U" al final (ej: `13:40U`). Si no hay actualización, se muestra la hora programada con un espacio.
+> **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME en color naranja (`#FF9800`). Si no hay actualización, se muestra la hora programada en amarillo (`#FFD600`).
 
 ### Layout de cards:
 
@@ -269,7 +271,6 @@ Cada fila es una tira continua de cards uniformes (estilo split-flap real):
 - `FLAP_H = 20px` de alto, `FONT_SZ = 12`
 - 1 card vacía como separador entre columnas
 - 1 card extra al final de cada fila
-- Filas vacías con cards rellenan el widget hasta el borde inferior
 
 ### Colores:
 
@@ -278,6 +279,7 @@ Cada fila es una tira continua de cards uniformes (estilo split-flap real):
 | Header (DEPARTURES) | Blanco `#FFFFFF` |
 | Títulos de columna | Gris claro `#CCCCCC` |
 | Datos de vuelos | Amarillo `#FFD600` |
+| Hora actualizada | Naranja `#FF9800` |
 | Reloj | Verde `#4CAF50` |
 | OK | Blanco `#FFFFFF` |
 | EMB | Verde `#4CAF50` |
@@ -289,7 +291,6 @@ Cada fila es una tira continua de cards uniformes (estilo split-flap real):
 - Cards individuales por carácter con bordes redondeados
 - Card de `:` más angosta para horas compactas
 - Separadores entre columnas son cards vacías (no espacios)
-- Filas vacías rellenan el widget hasta abajo
 - Encabezados centrados
 - Fuentes monoespaciadas (bold) para todo el contenido
 - Icono nativo iOS (SF Symbol) en el header
