@@ -419,12 +419,11 @@ for (let i = 0; i < flights.length; i++) {
   w.addSpacer(2);
 }
 
-// Rellenar hasta MAX_FLIGHTS con filas vacías
-for (let i = flights.length; i < MAX_FLIGHTS; i++) {
+// Rellenar con filas vacías hasta llenar el widget (overflow se recorta)
+const TOTAL_ROWS = 15;
+for (let i = flights.length; i < TOTAL_ROWS; i++) {
   addEmptyRow(w);
   w.addSpacer(2);
 }
-
-w.addSpacer();
 Script.setWidget(w);
 Script.complete();
