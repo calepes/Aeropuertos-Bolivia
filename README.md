@@ -189,7 +189,7 @@ Los estados se normalizan a códigos cortos.
 - **EMB** → texto verde (`#4CAF50`)
 - **DEM** → texto rojo (`#FF3D00`)
 - **CAN** → texto rojo (`#FF3D00`)
-- **OK** → texto verde (`#4CAF50`)
+- **OK** → texto blanco (`#FFFFFF`)
 - **PRE** siempre tiene prioridad sobre EMB (evita errores de interpretación)
 
 > El estado se detecta tanto en español (DEMORADO, EMBARQUE) como en inglés (DELAYED, BOARDING).
@@ -253,13 +253,23 @@ El widget replica la estética de los tableros de salidas de aeropuerto clásico
 
 ### Columnas mostradas:
 
-| Columna | Label | Descripción |
-|---------|-------|-------------|
-| TIME | TIME | Hora programada (HH:MM) |
-| DST | DST | Destino IATA (compactado) |
-| FLIGHT | FLIGHT | Aerolínea + número de vuelo |
-| REAL | REAL | Hora real (si disponible) |
-| RMKS | RMKS | Estado / Remarks |
+| Columna | Label | Chars | Descripción |
+|---------|-------|-------|-------------|
+| TIME | TIME | 6 | Hora (HH:MM) + indicador "U" si fue actualizada |
+| DST | DST | 3 | Destino IATA (código de 3 letras) |
+| FLIGHT | FLIGHT | 6 | Aerolínea + número de vuelo |
+| RMKS | RMKS | 3 | Estado / Remarks |
+
+> **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME con una "U" al final (ej: `13:40U`). Si no hay actualización, se muestra la hora programada con un espacio.
+
+### Layout de cards:
+
+Cada fila es una tira continua de cards uniformes (estilo split-flap real):
+- `CHAR_W = 14px` por card, `COLON_W = 8px` para `:` (más compacto)
+- `FLAP_H = 20px` de alto, `FONT_SZ = 12`
+- 1 card vacía como separador entre columnas
+- 1 card extra al final de cada fila
+- Filas vacías con cards rellenan el widget hasta el borde inferior
 
 ### Colores:
 
@@ -269,14 +279,17 @@ El widget replica la estética de los tableros de salidas de aeropuerto clásico
 | Títulos de columna | Gris claro `#CCCCCC` |
 | Datos de vuelos | Amarillo `#FFD600` |
 | Reloj | Verde `#4CAF50` |
-| OK / EMB | Verde `#4CAF50` |
+| OK | Blanco `#FFFFFF` |
+| EMB | Verde `#4CAF50` |
 | PRE | Amarillo `#FFD600` |
 | DEM / CAN | Rojo `#FF3D00` |
-| Footer | Gris `#555555` |
 
 ### Características visuales:
-- Estilo split-flap board de aeropuerto
+- Estilo split-flap board de aeropuerto (tira continua de cards)
 - Cards individuales por carácter con bordes redondeados
+- Card de `:` más angosta para horas compactas
+- Separadores entre columnas son cards vacías (no espacios)
+- Filas vacías rellenan el widget hasta abajo
 - Encabezados centrados
 - Fuentes monoespaciadas (bold) para todo el contenido
 - Icono nativo iOS (SF Symbol) en el header
