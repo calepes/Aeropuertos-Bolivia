@@ -357,8 +357,8 @@ function addBoardRow(parent, segments) {
   addCard(row, " ", TEXT_COLOR);
 }
 
-// Columnas: TIME(5), DST(4), FLIGHT(7), RMKS(3)
-const COL_CHARS = [5, 4, 7, 3];
+// Columnas: TIME(5), DST(4), FLIGHT(6), RMKS(3)
+const COL_CHARS = [5, 4, 6, 3];
 const COL_COLONS = [1, 0, 0, 0];
 const COL_LABELS = ["TIME", "DST", "FLIGHT", "RMKS"];
 
@@ -404,7 +404,7 @@ for (let i = 0; i < flights.length; i++) {
   addBoardRow(w, [
     { text: timeStr, color: timeColor },
     { text: f.dest.padEnd(4).slice(0, 4), color: TEXT_COLOR },
-    { text: f.vuelo.padEnd(7).slice(0, 7), color: TEXT_COLOR },
+    { text: f.vuelo.padEnd(6).slice(0, 6), color: TEXT_COLOR },
     { text: f.est.text.padEnd(3).slice(0, 3), color: estColor }
   ]);
 
