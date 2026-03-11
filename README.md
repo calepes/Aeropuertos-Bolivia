@@ -272,6 +272,14 @@ Cada fila es una tira continua de cards uniformes (estilo split-flap real):
 - 1 card vacía como separador entre columnas
 - 1 card extra al final de cada fila
 
+### Espaciado vertical:
+
+| Zona | Separación |
+|------|------------|
+| Header → títulos de columna | 10px |
+| Títulos de columna → filas de vuelos | 6px |
+| Entre filas de vuelos | 2px |
+
 ### Colores:
 
 | Elemento | Color |
