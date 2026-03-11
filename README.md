@@ -259,7 +259,7 @@ El widget replica la estética de los tableros de salidas de aeropuerto clásico
 |---------|-------|-------|-------------|
 | TIME | TIME | 5 | Hora (HH:MM) — naranja si fue actualizada, amarillo si es programada |
 | DST | DST | 4 | Destino IATA + `+` si tiene escalas (ej: `LIM+`) |
-| FLIGHT | FLIGHT | 7 | Aerolínea + número de vuelo |
+| FLIGHT | FLIGHT | 6 | Aerolínea + número de vuelo |
 | RMKS | RMKS | 3 | Estado / Remarks |
 
 > **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME en color naranja (`#FF9800`). Si no hay actualización, se muestra la hora programada en amarillo (`#FFD600`).
@@ -267,7 +267,7 @@ El widget replica la estética de los tableros de salidas de aeropuerto clásico
 ### Layout de cards:
 
 Cada fila es una tira continua de cards uniformes (estilo split-flap real):
-- `CHAR_W = 14px` por card, `COLON_W = 8px` para `:` (más compacto)
+- `CHAR_W = 14px` por card, `COLON_W = 6px` para `:` (más compacto)
 - `FLAP_H = 20px` de alto, `FONT_SZ = 12`
 - 1 card vacía como separador entre columnas
 - 1 card extra al final de cada fila
