@@ -328,7 +328,7 @@ const FLAP_H = 20;
 const FONT_SZ = 12;
 const SEP_CARDS = 1;
 
-const COLON_W = 8;
+const COLON_W = 6;
 
 function addCard(parent, ch, color) {
   const isColon = ch === ":";
