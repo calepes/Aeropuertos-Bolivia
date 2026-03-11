@@ -189,7 +189,7 @@ function statusInfo(obs) {
 }
 
 function getHoraReal(op, f) {
-  return (f && f.HORA_REAL) || (op && op.HORA_REAL_SALIDA) || (op && op.HORA_SALIDA_REAL) || null;
+  return f?.HORA_REAL || op?.HORA_REAL_SALIDA || op?.HORA_SALIDA_REAL || null;
 }
 
 /***********************
@@ -202,7 +202,7 @@ async function load(url) {
     const r = new Request(url);
     r.allowInsecureLoads = true;
     return await r.loadJSON();
-  } catch (e) {
+  } catch {
     return [];
   }
 }
@@ -357,9 +357,9 @@ const COL_HAS_COLON = [true, true, false, false, false];
 const COL_LABELS = ["HORA", "REAL", "VUELO", "DST", "EST"];
 
 function colWidth(i) {
-  var cards = COL_CARDS[i];
-  var cw = cards * CHAR_W + (cards - 1);
-  return COL_HAS_COLON[i] ? cw + 6 : cw;
+  const cards = COL_CARDS[i];
+  const w = cards * CHAR_W + (cards - 1);
+  return COL_HAS_COLON[i] ? w + 6 : w;
 }
 
 const th = w.addStack();
