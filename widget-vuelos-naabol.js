@@ -167,7 +167,7 @@ function todayWithHHMM(x) {
 function hhmm(d) {
   return d
     ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
-    : "···";
+    : "     ";
 }
 
 function destinationIATA(route) {
