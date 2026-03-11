@@ -327,9 +327,12 @@ const FLAP_H = 20;
 const FONT_SZ = 12;
 const SEP_CARDS = 1;
 
+const COLON_W = 8;
+
 function addCard(parent, ch, color) {
+  const isColon = ch === ":";
   const flap = parent.addStack();
-  flap.size = new Size(CHAR_W, FLAP_H);
+  flap.size = new Size(isColon ? COLON_W : CHAR_W, FLAP_H);
   flap.backgroundColor = CARD_BG;
   flap.cornerRadius = 2;
   flap.centerAlignContent();
@@ -354,10 +357,13 @@ function addBoardRow(parent, segments) {
 
 // Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
 const COL_CHARS = [6, 3, 6, 3];
+const COL_COLONS = [1, 0, 0, 0];
 const COL_LABELS = ["TIME", "DST", "FLIGHT", "RMKS"];
 
 function colWidth(i) {
-  return COL_CHARS[i] * CHAR_W + (COL_CHARS[i] - 1);
+  const normal = COL_CHARS[i] - COL_COLONS[i];
+  const colons = COL_COLONS[i];
+  return normal * CHAR_W + colons * COLON_W + (COL_CHARS[i] - 1);
 }
 
 const th = w.addStack();
