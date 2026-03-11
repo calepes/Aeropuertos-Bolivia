@@ -4,7 +4,7 @@
 
 const REPO_OWNER = "calepes";
 const REPO_NAME = "widget-vuelos-bolivia";
-const BRANCH = "claude/review-repo-C5wso";
+const BRANCH = "main";
 const FILE = "widget-vuelos-naabol.js";
 
 const API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE + "?ref=" + encodeURIComponent(BRANCH);
