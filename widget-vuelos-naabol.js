@@ -41,8 +41,8 @@ const URL_OPS =
  ***********************/
 const BOARD_BG = new Color("#0A0A0A");
 const CARD_BG = new Color("#1C1C1E");
-const HEADER_COLOR = new Color("#FFD600");
-const COL_HEADER_COLOR = new Color("#00BCD4");
+const HEADER_COLOR = new Color("#FFFFFF");
+const COL_HEADER_COLOR = new Color("#CCCCCC");
 const TEXT_COLOR = new Color("#FFD600");
 const PRE_COLOR = new Color("#FFD600");
 const EMB_COLOR = new Color("#4CAF50");
@@ -298,7 +298,7 @@ const w = new ListWidget();
 w.backgroundColor = BOARD_BG;
 w.setPadding(10, 12, 8, 12);
 
-// Header: icono + SALIDAS - Ciudad ... reloj
+// Header: icono + DEPARTURES ... reloj (estilo flight board)
 const hdr = w.addStack();
 hdr.layoutHorizontally();
 hdr.centerAlignContent();
@@ -306,14 +306,14 @@ const icon = hdr.addText("✈︎");
 icon.font = Font.boldSystemFont(18);
 icon.textColor = HEADER_COLOR;
 hdr.addSpacer(6);
-const title = hdr.addText(`SALIDAS - ${AIRPORT.city}`);
-title.font = Font.boldMonospacedSystemFont(14);
+const title = hdr.addText(`DEPARTURES`);
+title.font = Font.boldMonospacedSystemFont(16);
 title.textColor = HEADER_COLOR;
 title.lineLimit = 1;
 hdr.addSpacer();
 const clock = hdr.addText(hhmm(new Date()));
 clock.font = Font.boldMonospacedSystemFont(16);
-clock.textColor = HEADER_COLOR;
+clock.textColor = new Color("#4CAF50");
 
 w.addSpacer(6);
 
@@ -350,11 +350,11 @@ function addFlapGroup(parent, text, color) {
   }
 }
 
-// Columnas fijas: HORA(5), VUELO(6), DST(4), EST(3)
+// Columnas: HORA(5), DST(4), VUELO(6), REAL(5), EST(3)
 // Cards por columna (sin contar ":")
-const COL_CARDS = [4, 6, 4, 3];
-const COL_HAS_COLON = [true, false, false, false];
-const COL_LABELS = ["HORA", "VUELO", "DST", "EST"];
+const COL_CARDS = [4, 4, 6, 4, 3];
+const COL_HAS_COLON = [true, false, false, true, false];
+const COL_LABELS = ["TIME", "DST", "FLIGHT", "REAL", "RMKS"];
 
 function colWidth(i) {
   const cards = COL_CARDS[i];
@@ -383,10 +383,13 @@ for (let i = 0; i < flights.length; i++) {
   row.layoutHorizontally();
   row.spacing = GRP_GAP;
 
+  const realStr = f.real ? hhmm(f.real) : "     ";
+
   const vals = [
     hhmm(f.prog),
-    f.vuelo.padEnd(6).slice(0, 6),
     f.dest.padEnd(4).slice(0, 4),
+    f.vuelo.padEnd(6).slice(0, 6),
+    realStr,
     f.est.text.padEnd(3).slice(0, 3)
   ];
 
@@ -397,7 +400,7 @@ for (let i = 0; i < flights.length; i++) {
   else if (f.est.canceled) estColor = CAN_COLOR;
   else estColor = OK_COLOR;
 
-  const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, estColor];
+  const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, estColor];
 
   vals.forEach((val, j) => {
     addFlapGroup(row, val, colors[j]);
