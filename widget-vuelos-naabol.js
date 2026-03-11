@@ -49,6 +49,7 @@ const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
 const OK_COLOR = new Color("#FFFFFF");
+const UPD_COLOR = new Color("#FF9800");
 const MUTED_COLOR = new Color("#555555");
 
 /***********************
@@ -356,8 +357,8 @@ function addBoardRow(parent, segments) {
   addCard(row, " ", TEXT_COLOR);
 }
 
-// Columnas: TIME(6)=hora+U, DST(3), FLIGHT(6), RMKS(3)
-const COL_CHARS = [6, 3, 6, 3];
+// Columnas: TIME(5), DST(3), FLIGHT(6), RMKS(3)
+const COL_CHARS = [5, 3, 6, 3];
 const COL_COLONS = [1, 0, 0, 0];
 const COL_LABELS = ["TIME", "DST", "FLIGHT", "RMKS"];
 
@@ -389,9 +390,9 @@ w.addSpacer(4);
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
 
-  const timeStr = f.real
-    ? hhmm(f.real) + "U"
-    : hhmm(f.prog) + " ";
+  const hasReal = !!f.real;
+  const timeStr = hasReal ? hhmm(f.real) : hhmm(f.prog);
+  const timeColor = hasReal ? UPD_COLOR : TEXT_COLOR;
 
   let estColor;
   if (f.est.preBoarding) estColor = PRE_COLOR;
@@ -401,7 +402,7 @@ for (let i = 0; i < flights.length; i++) {
   else estColor = OK_COLOR;
 
   addBoardRow(w, [
-    { text: timeStr, color: TEXT_COLOR },
+    { text: timeStr, color: timeColor },
     { text: f.dest.padEnd(3).slice(0, 3), color: TEXT_COLOR },
     { text: f.vuelo.padEnd(6).slice(0, 6), color: TEXT_COLOR },
     { text: f.est.text.padEnd(3).slice(0, 3), color: estColor }
