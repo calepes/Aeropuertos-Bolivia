@@ -148,7 +148,7 @@ El widget solo muestra vuelos que salen dentro de las próximas X horas.
 | Parámetro | Valor |
 |-----------|-------|
 | Ventana futura | 12 horas |
-| Máximo de vuelos mostrados | 10 |
+| Máximo de vuelos mostrados | 13 |
 
 > **Excepción:** Vuelos con estado activo (PRE, EMB, DEM) se muestran siempre, aunque su hora programada ya haya pasado. Esto evita que vuelos demorados desaparezcan del widget.
 
