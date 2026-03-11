@@ -420,7 +420,7 @@ for (let i = 0; i < flights.length; i++) {
 }
 
 // Rellenar con filas vacías hasta llenar el widget (overflow se recorta)
-const TOTAL_ROWS = 15;
+const TOTAL_ROWS = 13;
 for (let i = flights.length; i < TOTAL_ROWS; i++) {
   addEmptyRow(w);
   w.addSpacer(2);
