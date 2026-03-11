@@ -323,7 +323,7 @@ w.addSpacer(6);
 const CHAR_W = 13;
 const FLAP_H = 19;
 const FONT_SZ = 11;
-const GRP_GAP = 3;
+const GRP_GAP = 6;
 
 function addFlapGroup(parent, text, color) {
   const grp = parent.addStack();
