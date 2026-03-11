@@ -376,7 +376,7 @@ for (let i = 0; i < flights.length; i++) {
   row.layoutHorizontally();
   row.spacing = GRP_GAP;
 
-  const realStr = f.real ? hhmm(f.real) : "--:--";
+  const realStr = f.real ? hhmm(f.real) : "···";
 
   const vals = [
     hhmm(f.prog),
