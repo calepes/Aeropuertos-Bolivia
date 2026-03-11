@@ -329,60 +329,80 @@ subAirport.textColor = MUTED_COLOR;
 
 w.addSpacer(4);
 
-// Encabezados de columna (alineados con cards)
-const HEAD = ["HORA", "REAL", "VUELO", "EST", "DST"];
+// Helper: añade un grupo de flaps (letra por letra)
+function addFlapGroup(parent, text, color, charW) {
+  const grp = parent.addStack();
+  grp.layoutHorizontally();
+  grp.spacing = 1;
+  for (const ch of text) {
+    if (ch === ":") {
+      const sep = grp.addStack();
+      sep.size = new Size(6, 18);
+      sep.centerAlignContent();
+      const s = sep.addText(":");
+      s.font = Font.boldMonospacedSystemFont(10);
+      s.textColor = color;
+    } else {
+      const flap = grp.addStack();
+      flap.size = new Size(charW, 18);
+      flap.backgroundColor = CARD_BG;
+      flap.cornerRadius = 2;
+      flap.centerAlignContent();
+      const t = flap.addText(ch);
+      t.font = Font.boldMonospacedSystemFont(11);
+      t.textColor = color;
+    }
+  }
+}
+
+// Encabezados de columna
+const COL_WIDTHS = [5, 5, 6, 3, 3]; // chars por columna
+const COL_LABELS = ["HORA", "REAL", "VUELO", "EST", "DST"];
+const CHAR_W = 12;
+const GRP_GAP = 5;
 
 const th = w.addStack();
 th.layoutHorizontally();
-th.spacing = 3;
-HEAD.forEach((t, i) => {
+th.spacing = GRP_GAP;
+COL_LABELS.forEach((label, i) => {
+  const colW = COL_WIDTHS[i] * CHAR_W + (COL_WIDTHS[i] - 1) + (label.includes(":") ? 4 : 0);
   const s = th.addStack();
-  s.size = new Size([46, 46, 68, 44, 44][i], 0);
-  s.setPadding(0, 4, 0, 4);
-  const tx = s.addText(t);
-  tx.font = Font.boldMonospacedSystemFont(9);
+  s.size = new Size(Math.max(colW, 0), 0);
+  s.centerAlignContent();
+  const tx = s.addText(label);
+  tx.font = Font.boldMonospacedSystemFont(8);
   tx.textColor = COL_HEADER_COLOR;
 });
 
 w.addSpacer(4);
 
-// Filas de vuelos – estilo split-flap cards
-const CARD_W = [46, 46, 68, 44, 44];
-const GAP = 3;
-
+// Filas de vuelos – letra por letra
 for (let i = 0; i < flights.length; i++) {
   const f = flights[i];
   const row = w.addStack();
   row.layoutHorizontally();
-  row.spacing = GAP;
+  row.spacing = GRP_GAP;
 
-  const vals = [hhmm(f.prog), hhmm(f.real), f.vuelo, f.est.text, f.dest];
+  const vals = [
+    hhmm(f.prog).padEnd(5),
+    hhmm(f.real).padEnd(5),
+    f.vuelo.padEnd(6).slice(0, 6),
+    f.est.text.padEnd(3).slice(0, 3),
+    f.dest.padEnd(3).slice(0, 3)
+  ];
+
+  const colors = [TEXT_COLOR, TEXT_COLOR, TEXT_COLOR, null, TEXT_COLOR];
+  if (f.est.preBoarding) colors[3] = PRE_COLOR;
+  else if (f.est.boarding) colors[3] = EMB_COLOR;
+  else if (f.est.delayed) colors[3] = DEM_COLOR;
+  else if (f.est.canceled) colors[3] = CAN_COLOR;
+  else colors[3] = OK_COLOR;
 
   vals.forEach((val, j) => {
-    const card = row.addStack();
-    card.size = new Size(CARD_W[j], 20);
-    card.backgroundColor = CARD_BG;
-    card.cornerRadius = 3;
-    card.setPadding(2, 4, 2, 4);
-    card.centerAlignContent();
-
-    const t = card.addText(val);
-    t.font = Font.mediumMonospacedSystemFont(11);
-    t.lineLimit = 1;
-    t.minimumScaleFactor = 0.8;
-
-    if (j === 3) {
-      if (f.est.preBoarding) t.textColor = PRE_COLOR;
-      else if (f.est.boarding) t.textColor = EMB_COLOR;
-      else if (f.est.delayed) t.textColor = DEM_COLOR;
-      else if (f.est.canceled) t.textColor = CAN_COLOR;
-      else t.textColor = OK_COLOR;
-    } else {
-      t.textColor = TEXT_COLOR;
-    }
+    addFlapGroup(row, val, colors[j], CHAR_W);
   });
 
-  w.addSpacer(2);
+  w.addSpacer(1);
 }
 
 w.addSpacer();
