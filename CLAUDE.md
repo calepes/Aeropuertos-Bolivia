@@ -8,7 +8,9 @@ Repositorio monorepo para aplicaciones de aeropuertos bolivianos (NAABOL).
 
 ```
 widget/    — Widget de salidas de vuelos para iOS (Scriptable)
-pwa/       — Progressive Web App (por construir)
+pwa/       — Progressive Web App de salidas (en desarrollo, ver spec)
+proxy/     — Cloudflare Worker CORS proxy (por crear)
+docs/      — Specs de diseño
 ```
 
 ### Widget (`widget/`)
@@ -20,10 +22,16 @@ pwa/       — Progressive Web App (por construir)
 - `index.html` — Página web de tipo de cambio
 - `__tests__/` — Suite de tests Jest
 
+### PWA (`pwa/`) — En desarrollo
+
+Spec de diseño: `docs/superpowers/specs/2026-03-12-pwa-salidas-design.md`
+
 ## Comandos
 
 - `cd widget && npm test` — Ejecuta todos los tests con Jest (46 tests, 2 suites)
 - `cd widget && npm install` — Instala dependencias (solo jest como devDependency)
+- `cd pwa && python3 -m http.server` — Dev server local para la PWA
+- `cd proxy && npx wrangler deploy` — Deploy del proxy CORS a Cloudflare
 
 ## Tests
 
