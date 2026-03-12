@@ -39,6 +39,8 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 
 - `widget-vuelos-naabol.js` usa APIs de Scriptable (`ListWidget`, `Color`, `Request`, `SFSymbol`, `args`) — no se puede ejecutar en Node directamente
 - `functions/exchange.js` usa ESM (`export`) — los tests replican la lógica inline en vez de importar
-- Al modificar funciones helper en el widget, sincronizar con `helpers.js`
+- **Sincronización crítica:** Al modificar funciones helper en `widget-vuelos-naabol.js`, copiar los cambios a `helpers.js` manualmente (no comparten código, son copias)
 - Los 12 aeropuertos bolivianos están hardcodeados en `AIRPORTS`
 - El widget por defecto muestra VVI (Viru Viru, Santa Cruz)
+- El loader (`loader-scriptable.js`) baja el widget desde `raw.githubusercontent.com` (no usa la API de GitHub) con fallback a cache iCloud
+- Datos de vuelos vienen de `fids.naabol.gob.bo` — endpoints de itinerario (hora programada) y operativo (hora real + estado)
