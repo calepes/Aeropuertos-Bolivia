@@ -7,16 +7,7 @@
     "test": "jest --verbose",
     "test:ci": "jest --ci --coverage"
   },
-  "jest": {
-    "transform": {
-      "\\.js$": "babel-jest"
-    },
-    "transformIgnorePatterns": []
-  },
   "devDependencies": {
-    "@babel/core": "^7.24.0",
-    "@babel/preset-env": "^7.24.0",
-    "babel-jest": "^29.7.0",
     "jest": "^29.7.0"
   }
 }
