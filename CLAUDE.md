@@ -2,9 +2,16 @@
 
 ## Proyecto
 
-Widget de salidas de vuelos para aeropuertos NAABOL (Bolivia), ejecutado en iOS via Scriptable.
+Repositorio monorepo para aplicaciones de aeropuertos bolivianos (NAABOL).
 
 ## Estructura
+
+```
+widget/    — Widget de salidas de vuelos para iOS (Scriptable)
+pwa/       — Progressive Web App (por construir)
+```
+
+### Widget (`widget/`)
 
 - `widget-vuelos-naabol.js` — Script principal del widget (Scriptable API, no importable en Node)
 - `loader-scriptable.js` — Auto-loader desde GitHub con cache iCloud
@@ -15,18 +22,18 @@ Widget de salidas de vuelos para aeropuertos NAABOL (Bolivia), ejecutado en iOS 
 
 ## Comandos
 
-- `npm test` — Ejecuta todos los tests con Jest (46 tests, 2 suites)
-- `npm install` — Instala dependencias (solo jest como devDependency)
+- `cd widget && npm test` — Ejecuta todos los tests con Jest (46 tests, 2 suites)
+- `cd widget && npm install` — Instala dependencias (solo jest como devDependency)
 
 ## Tests
 
-Los tests cubren las funciones puras en `helpers.js` y la lógica del endpoint `exchange.js`:
+Los tests cubren las funciones puras en `widget/helpers.js` y la lógica del endpoint `widget/functions/exchange.js`:
 - Normalización de horas, aerolíneas, destinos y estados de vuelo
 - Integridad de mapas IATA (aerolíneas y destinos)
 - Variantes con/sin acentos
 - Endpoint de tipo de cambio (mock de fetch/Response)
 
-Para agregar tests: crear archivos `__tests__/*.test.js`
+Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 
 ## Consideraciones
 
