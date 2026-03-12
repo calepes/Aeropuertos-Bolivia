@@ -1,93 +1,93 @@
 # CLAUDE.md
 
-## Project Overview
+## Descripción del Proyecto
 
-**widget-vuelos-bolivia** is an iOS widget for displaying real-time flight departures from Bolivian airports, built for the [Scriptable](https://scriptable.app/) app. It fetches live data from NAABOL (Bolivian airport operator) APIs and renders a compact departure board.
+**widget-vuelos-bolivia** es un widget para iOS que muestra salidas de vuelos en tiempo real desde aeropuertos bolivianos, construido para la app [Scriptable](https://scriptable.app/). Obtiene datos en vivo de las APIs de NAABOL (operador aeroportuario boliviano) y renderiza un tablero compacto de salidas.
 
-A secondary feature provides USD/BOB exchange rates via a Cloudflare serverless function.
+Una funcionalidad secundaria proporciona tasas de cambio USD/BOB mediante una función serverless de Cloudflare.
 
-## Repository Structure
+## Estructura del Repositorio
 
 ```
 widget-vuelos-bolivia/
-├── widget-vuelos-naabol.js   # Main widget script (Scriptable API)
-├── loader-scriptable.js      # Auto-updating loader with iCloud cache
-├── index.html                # Simple HTML page for exchange rate display
+├── widget-vuelos-naabol.js   # Script principal del widget (API de Scriptable)
+├── loader-scriptable.js      # Cargador con auto-actualización y caché en iCloud
+├── index.html                # Página HTML simple para mostrar tipo de cambio
 ├── functions/
-│   └── exchange.js           # Cloudflare Function for USD/BOB rates
-└── README.md                 # User-facing docs (Spanish)
+│   └── exchange.js           # Función de Cloudflare para tasas USD/BOB
+└── README.md                 # Documentación para usuarios (en español)
 ```
 
-## Tech Stack
+## Stack Tecnológico
 
-- **Runtime**: Scriptable app (iOS) — not Node.js
-- **Language**: JavaScript (ES6+), using Scriptable global APIs (`ListWidget`, `Request`, `FileManager`, etc.)
+- **Runtime**: App Scriptable (iOS) — no es Node.js
+- **Lenguaje**: JavaScript (ES6+), usando APIs globales de Scriptable (`ListWidget`, `Request`, `FileManager`, etc.)
 - **Serverless**: Cloudflare Functions (`functions/exchange.js`)
-- **No build process** — single-file scripts deployed directly via GitHub
+- **Sin proceso de build** — scripts de archivo único desplegados directamente vía GitHub
 
-## Key Architecture
+## Arquitectura Principal
 
 ### Widget (`widget-vuelos-naabol.js`)
 
-1. Fetches flight data from two NAABOL endpoints (Itinerario + Operativo)
-2. Merges scheduled and actual flight info by airline code + flight number
-3. Filters to a 12-hour window, max 10 flights (`HOURS_AHEAD`, `MAX_FLIGHTS`)
-4. Renders a 5-column table: PROG | REAL | VUELO | EST | DST
+1. Obtiene datos de vuelos de dos endpoints de NAABOL (Itinerario + Operativo)
+2. Fusiona información programada y real por código de aerolínea + número de vuelo
+3. Filtra a una ventana de 12 horas, máximo 10 vuelos (`HOURS_AHEAD`, `MAX_FLIGHTS`)
+4. Renderiza una tabla de 5 columnas: PROG | REAL | VUELO | EST | DST
 
-**Parametrized by airport code** via `args.widgetParameter` (default: `VVI`). Supported airports: VVI, LPB, CBB, TJA, SRE, ORU, UYU, CIJ, RIB, RBQ, TDD, GYA.
+**Parametrizado por código de aeropuerto** vía `args.widgetParameter` (por defecto: `VVI`). Aeropuertos soportados: VVI, LPB, CBB, TJA, SRE, ORU, UYU, CIJ, RIB, RBQ, TDD, GYA.
 
-### Loader (`loader-scriptable.js`)
+### Cargador (`loader-scriptable.js`)
 
-Auto-fetches the latest widget from the GitHub API, caches locally in iCloud for offline use, and evaluates dynamically.
+Descarga automáticamente la última versión del widget desde la API de GitHub, guarda caché local en iCloud para uso sin conexión y lo evalúa dinámicamente.
 
-### Exchange (`functions/exchange.js`)
+### Tipo de Cambio (`functions/exchange.js`)
 
-Serverless endpoint returning USD buy/sell rates from dolarboliviahoy.com. Cache: 300s.
+Endpoint serverless que retorna tasas de compra/venta de USD desde dolarboliviahoy.com. Caché: 300s.
 
-## Code Conventions
+## Convenciones de Código
 
-- **Constants**: `SCREAMING_SNAKE_CASE` (`HOURS_AHEAD`, `MAX_FLIGHTS`, `AIRPORT_PARAM`)
-- **Functions/variables**: `camelCase`
-- **UI text/docs**: Spanish; code identifiers: English
-- **Data processing**: Array `map`/`filter` chains, early returns for invalid data
-- **Error handling**: Silent failures on API errors (returns `[]`), fallback defaults with `||`
-- **Colors**: `Color.dynamic()` for light/dark mode support, hex values with RGB mappings
+- **Constantes**: `SCREAMING_SNAKE_CASE` (`HOURS_AHEAD`, `MAX_FLIGHTS`, `AIRPORT_PARAM`)
+- **Funciones/variables**: `camelCase`
+- **Texto de UI/docs**: Español; identificadores de código: Inglés
+- **Procesamiento de datos**: Cadenas de `map`/`filter` en arrays, retornos tempranos para datos inválidos
+- **Manejo de errores**: Fallos silenciosos en errores de API (retorna `[]`), valores por defecto con `||`
+- **Colores**: `Color.dynamic()` para soporte de modo claro/oscuro, valores hex con mapeos RGB
 
-## Flight Status Codes
+## Códigos de Estado de Vuelos
 
-| Code | Meaning       | Color      |
-|------|---------------|------------|
-| PRE  | Pre-boarding  | Blue       |
-| EMB  | Boarding      | Green      |
-| DEM  | Delayed       | Red text   |
-| CAN  | Canceled      | Red bg     |
-| OK   | Normal        | Default    |
+| Código | Significado    | Color           |
+|--------|----------------|-----------------|
+| PRE    | Pre-embarque   | Azul            |
+| EMB    | Embarcando     | Verde           |
+| DEM    | Demorado       | Texto rojo      |
+| CAN    | Cancelado      | Fondo rojo      |
+| OK     | Normal         | Por defecto     |
 
-Active statuses (PRE/EMB/DEM) are always shown, even past scheduled time.
+Los estados activos (PRE/EMB/DEM) se muestran siempre, incluso pasada la hora programada.
 
-## Development Notes
+## Notas de Desarrollo
 
-- **No package.json, no npm dependencies, no bundler** — standalone Scriptable scripts
-- **No test framework** — manual testing via Scriptable app
-- **Deployment**: Push to `main` branch; the loader auto-fetches updates from GitHub
-- Scriptable widgets are stateless — each execution fetches fresh data
-- Flights crossing midnight are handled with next-day date correction
+- **Sin package.json, sin dependencias npm, sin bundler** — scripts independientes para Scriptable
+- **Sin framework de testing** — pruebas manuales en la app Scriptable
+- **Despliegue**: Push a la rama `main`; el cargador descarga actualizaciones automáticamente desde GitHub
+- Los widgets de Scriptable son stateless — cada ejecución obtiene datos frescos
+- Los vuelos que cruzan medianoche se manejan con corrección de fecha al día siguiente
 
-## Key Functions in `widget-vuelos-naabol.js`
+## Funciones Clave en `widget-vuelos-naabol.js`
 
-| Function | Purpose |
-|----------|---------|
-| `normalizeHHMM(x)` | Parse time strings to HH:MM format |
-| `todayWithHHMM(x)` | Convert time to Date, handling next-day flights |
-| `airlineCode(name)` | Map airline names to IATA codes |
-| `destinationIATA(route)` | Extract first destination from route |
-| `statusInfo(obs)` | Normalize flight status text |
-| `load(url)` | Fetch JSON with error handling |
+| Función | Propósito |
+|---------|-----------|
+| `normalizeHHMM(x)` | Parsea cadenas de tiempo al formato HH:MM |
+| `todayWithHHMM(x)` | Convierte tiempo a Date, manejando vuelos del día siguiente |
+| `airlineCode(name)` | Mapea nombres de aerolíneas a códigos IATA |
+| `destinationIATA(route)` | Extrae el primer destino de una ruta |
+| `statusInfo(obs)` | Normaliza el texto de estado del vuelo |
+| `load(url)` | Obtiene JSON con manejo de errores |
 
-## When Modifying This Code
+## Al Modificar Este Código
 
-- The Scriptable API is **not** standard browser or Node.js — do not use `document`, `window`, `require`, or `module.exports` in the widget files
-- Test changes in the Scriptable app on iOS; there is no local emulator
-- Keep the widget script self-contained (single file, no imports)
-- Respect the dense table layout — screen real estate is extremely limited on iOS widgets
-- Airport/airline lookup dictionaries are inline; add new entries directly to the objects
+- La API de Scriptable **no** es la del navegador ni Node.js — no usar `document`, `window`, `require` ni `module.exports` en los archivos del widget
+- Probar cambios en la app Scriptable en iOS; no existe un emulador local
+- Mantener el script del widget autocontenido (un solo archivo, sin imports)
+- Respetar el diseño denso de la tabla — el espacio en pantalla es extremadamente limitado en widgets de iOS
+- Los diccionarios de aeropuertos/aerolíneas están inline; agregar nuevas entradas directamente en los objetos
