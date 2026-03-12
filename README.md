@@ -1,24 +1,33 @@
-# NAABOL – Widget de Salidas de Vuelos (Scriptable)
+# Aeropuertos Bolivia
 
-## Documento de Funcionamiento
+Aplicaciones para consultar información de aeropuertos administrados por NAABOL (Bolivia).
+
+## Estructura
+
+```
+widget/    — Widget de salidas de vuelos para iOS (Scriptable)
+pwa/       — Progressive Web App (por construir)
+```
 
 ---
 
-## Instalación Rápida
+## Widget de Salidas de Vuelos (Scriptable)
 
-### Opción 1: Loader automático (recomendado)
+### Instalación Rápida
+
+#### Opción 1: Loader automático (recomendado)
 
 1. Descargar e instalar [Scriptable](https://apps.apple.com/app/scriptable/id1405459188) en iOS
-2. Copiar el contenido de [`loader-scriptable.js`](./loader-scriptable.js) en un nuevo script
+2. Copiar el contenido de [`widget/loader-scriptable.js`](./widget/loader-scriptable.js) en un nuevo script
 3. Agregar un widget Scriptable a la pantalla de inicio
 4. Configurar el widget para usar el script creado
 5. (Opcional) En "Widget Parameter" escribir el código del aeropuerto (ej: `LPB`)
 
-El loader descarga automáticamente la última versión del widget desde GitHub cada vez que se ejecuta, y mantiene una copia en cache local (iCloud) para funcionar sin conexión.
+El loader descarga automáticamente la última versión del widget desde GitHub (via `raw.githubusercontent.com`) cada vez que se ejecuta, y mantiene una copia en cache local (iCloud) para funcionar sin conexión.
 
-### Opción 2: Copia manual
+#### Opción 2: Copia manual
 
-1. Copiar el contenido de [`widget-vuelos-naabol.js`](./widget-vuelos-naabol.js) en un nuevo script de Scriptable
+1. Copiar el contenido de [`widget/widget-vuelos-naabol.js`](./widget/widget-vuelos-naabol.js) en un nuevo script de Scriptable
 2. Agregar un widget Scriptable a la pantalla de inicio
 3. Configurar el widget para usar el script creado
 4. (Opcional) En "Widget Parameter" escribir el código del aeropuerto (ej: `LPB`)
@@ -27,72 +36,23 @@ El loader descarga automáticamente la última versión del widget desde GitHub 
 
 ---
 
-## 1. Propósito
+### Propósito
 
-Este widget muestra las salidas de vuelos en tiempo casi real desde aeropuertos administrados por NAABOL (Bolivia), utilizando la app Scriptable en iOS.
+Widget que muestra las salidas de vuelos en tiempo casi real desde aeropuertos NAABOL, utilizando Scriptable en iOS.
 
-El objetivo es tener una vista:
-- **Compacta**
-- **Legible**
-- **Confiable**
-- **Parametrizable por aeropuerto**
-
-Para uso operativo o personal.
+Vista compacta, legible, confiable y parametrizable por aeropuerto.
 
 ---
 
-## 2. Plataforma
+### Configuración
 
-| Característica | Valor |
-|----------------|-------|
-| Sistema operativo | iOS |
-| Aplicación | Scriptable |
-| Tipo | Widget (Small / Medium recomendado) |
-| Lenguaje | JavaScript (Scriptable API) |
-
----
-
-## 3. Alcance Funcional
-
-### El widget incluye:
-- Muestra vuelos de **SALIDA**
-- Cruza información de dos fuentes NAABOL:
-  - **Itinerario** (hora programada)
-  - **Operativo** (hora real y estado)
-- Filtra vuelos en una ventana futura configurable
-- Normaliza aerolíneas, destinos y estados
-- Renderiza una tabla ultra densa optimizada para widgets
-
-### No incluye:
-- Llegadas
-- Scroll
-- Interacción táctil
-
-> **Cache:** El loader incluye cache local en iCloud para funcionar sin conexión.
-
----
-
-## 4. Configuración del Widget
-
-El script es **ÚNICO** para todos los aeropuertos.
-
-El aeropuerto se define mediante:
-```
-args.widgetParameter
-```
-
-### Ejemplos:
+El aeropuerto se define mediante `args.widgetParameter`:
 - Sin parámetro → Viru Viru (VVI)
 - Con parámetro `"LPB"` → El Alto (La Paz)
 
-### Configuración en iOS:
-1. Añadir widget Scriptable
-2. Seleccionar el script
-3. En "Widget Parameter" escribir el código del aeropuerto
-
 ---
 
-## 5. Aeropuertos Soportados
+### Aeropuertos Soportados
 
 | Código | Aeropuerto |
 |--------|------------|
@@ -113,256 +73,58 @@ args.widgetParameter
 
 ---
 
-## 6. Fuentes de Datos (NAABOL)
+### Fuentes de Datos
 
-Se consumen dos endpoints oficiales:
+Se consumen dos endpoints oficiales de NAABOL:
+1. **Itinerario** — hora programada y ruta
+2. **Operativo** — hora real y estado del vuelo
 
-### 1. ITINERARIO (base)
-- Contiene hora programada y ruta
-
-### 2. OPERATIVO (complemento)
-- Contiene hora real y estado del vuelo
-
-Ambos se consultan por aeropuerto y se cruzan internamente.
+Ambos se cruzan internamente por código de aerolínea + número de vuelo.
 
 ---
 
-## 7. Lógica de Merge de Vuelos
+### Diseño Visual
 
-- El **itinerario** define qué vuelos existen
-- El **operativo** se indexa por: `Código de aerolínea + número de vuelo`
-- Si hay coincidencia:
-  - Se toma la hora real
-  - Se toma el estado
-- Si no hay coincidencia:
-  - El vuelo sigue apareciendo con hora programada
+Estilo split-flap board (tablero de aeropuerto clásico):
+- Fondo negro con cards oscuras por carácter
+- Fuentes monoespaciadas bold
+- Icono SF Symbol `airplane.departure` en el header
 
-> Esto evita perder vuelos cuando el operativo no está completo.
-
----
-
-## 8. Ventana de Tiempo
-
-El widget solo muestra vuelos que salen dentro de las próximas X horas.
-
-| Parámetro | Valor |
-|-----------|-------|
-| Ventana futura | 12 horas |
-| Máximo de vuelos mostrados | 13 |
-
-> **Excepción:** Vuelos con estado activo (PRE, EMB, DEM) se muestran siempre, aunque su hora programada ya haya pasado. Esto evita que vuelos demorados desaparezcan del widget.
-
-Los vuelos se ordenan por hora real (si existe), caso contrario por hora programada. Esto replica el orden de la pantalla NAABOL.
+| Columna | Chars | Descripción |
+|---------|-------|-------------|
+| TIME | 5 | HH:MM — naranja si actualizada, amarillo si programada |
+| DST | 4 | Destino IATA + `+` si tiene escalas |
+| FLIGHT | 6 | Aerolínea + número de vuelo |
+| RMKS | 3 | Estado (OK, PRE, EMB, DEM, CAN) |
 
 ---
 
-## 9. Fix de Día Siguiente (CRÍTICO)
+### Tests
 
-### Problema:
-- NAABOL entrega horas sin fecha
-- Vuelos después de medianoche se "pierden"
-
-### Solución:
-- Si la hora del vuelo es menor que la hora actual
-- Se asume que el vuelo es del día siguiente
-
-> Esto garantiza que vuelos nocturnos (00:00–03:00) se muestren correctamente.
-
----
-
-## 10. Estados de Vuelo
-
-Los estados se normalizan a códigos cortos.
-
-### Orden de evaluación (importante):
-
-| Código | Significado |
-|--------|-------------|
-| PRE | Pre-embarque |
-| EMB | Embarcando / Abordando |
-| DEM | Demorado / Delayed |
-| CAN | Cancelado |
-| OK | Normal / Sin observación |
-
-### Reglas visuales:
-- **PRE** → texto amarillo (`#FFD600`)
-- **EMB** → texto verde (`#4CAF50`)
-- **DEM** → texto rojo (`#FF3D00`)
-- **CAN** → texto rojo (`#FF3D00`)
-- **OK** → texto blanco (`#FFFFFF`)
-- **PRE** siempre tiene prioridad sobre EMB (evita errores de interpretación)
-
-> El estado se detecta tanto en español (DEMORADO, EMBARQUE) como en inglés (DELAYED, BOARDING).
-
----
-
-## 11. Aerolíneas – Manejo de Casos Especiales
-
-NAABOL no siempre entrega códigos IATA estándar.
-
-Para evitar vuelos incompletos (—), el script usa:
-- Diccionario principal de aerolíneas IATA
-- Diccionario de respaldo (fallback) para aerolíneas no estándar
-
-### Ejemplos manejados:
-- BOA
-- LATAM
-- Copa Airlines
-- Paraná Air
-- Air Europa
-- Minera
-- Avianca
-- Sky
-- Flybondi
-
-> Si una aerolínea no se reconoce, se intenta inferir. Último recurso: mostrar "–"
-
----
-
-## 12. Destinos – Normalización y Compactación
-
-NAABOL puede entregar rutas con múltiples tramos.
-
-### Ejemplo:
-```
-SANTA CRUZ - ASUNCION - MIAMI
-```
-
-### Regla aplicada:
-- Se toma **SOLO** el primer destino
-- Se cuenta cuántos destinos adicionales existen
-
-### Resultado mostrado:
-```
-VVI+
-```
-
-El `+` indica que el vuelo tiene escalas adicionales. Vuelos directos muestran solo el código IATA con espacio: `VVI `.
-
-> Esto mantiene el widget legible sin perder información relevante.
-
----
-
-## 13. Diseño del Widget
-
-### Estilo visual: Flight Board (tablero de aeropuerto)
-
-El widget replica la estética de los tableros de salidas de aeropuerto clásicos (split-flap / FIDS):
-
-- Header: icono SF Symbol `airplane.departure` + "DEPARTURES" en blanco + reloj en verde
-- Fondo negro (`#0A0A0A`) con cards oscuras por carácter (`#1C1C1E`)
-- Cada carácter se renderiza en su propia "card" simulando un flap mecánico
-
-### Columnas mostradas:
-
-| Columna | Label | Chars | Descripción |
-|---------|-------|-------|-------------|
-| TIME | TIME | 5 | Hora (HH:MM) — naranja si fue actualizada, amarillo si es programada |
-| DST | DST | 4 | Destino IATA + `+` si tiene escalas (ej: `LIM+`) |
-| FLIGHT | FLIGHT | 6 | Aerolínea + número de vuelo |
-| RMKS | RMKS | 3 | Estado / Remarks |
-
-> **Nota:** La columna REAL fue eliminada. Si existe hora real, se muestra en TIME en color naranja (`#FF9800`). Si no hay actualización, se muestra la hora programada en amarillo (`#FFD600`).
-
-### Layout de cards:
-
-Cada fila es una tira continua de cards uniformes (estilo split-flap real):
-- `CHAR_W = 14px` por card, `COLON_W = 6px` para `:` (más compacto)
-- `FLAP_H = 20px` de alto, `FONT_SZ = 12`
-- 1 card vacía como separador entre columnas
-- 1 card extra al final de cada fila
-
-### Espaciado vertical:
-
-| Zona | Separación |
-|------|------------|
-| Header → títulos de columna | 10px |
-| Títulos de columna → filas de vuelos | 6px |
-| Entre filas de vuelos | 2px |
-
-### Colores:
-
-| Elemento | Color |
-|----------|-------|
-| Header (DEPARTURES) | Blanco `#FFFFFF` |
-| Títulos de columna | Gris claro `#CCCCCC` |
-| Datos de vuelos | Amarillo `#FFD600` |
-| Hora actualizada | Naranja `#FF9800` |
-| Reloj | Verde `#4CAF50` |
-| OK | Blanco `#FFFFFF` |
-| EMB | Verde `#4CAF50` |
-| PRE | Amarillo `#FFD600` |
-| DEM / CAN | Rojo `#FF3D00` |
-
-### Características visuales:
-- Estilo split-flap board de aeropuerto (tira continua de cards)
-- Cards individuales por carácter con bordes redondeados
-- Card de `:` más angosta para horas compactas
-- Separadores entre columnas son cards vacías (no espacios)
-- Encabezados centrados
-- Fuentes monoespaciadas (bold) para todo el contenido
-- Icono nativo iOS (SF Symbol) en el header
-- Optimizado para lectura rápida
-
----
-
-## 14. Limitaciones Técnicas
-
-Por limitaciones de Scriptable:
-- No se puede tachar texto
-- No hay scroll
-- No hay interacción
-- No hay tooltips
-
-> El diseño prioriza estabilidad y claridad.
-
----
-
-## 15. Tests
-
-El proyecto incluye una suite de tests con Jest para validar la lógica de negocio.
-
-### Ejecutar tests:
 ```bash
+cd widget
 npm install
 npm test
 ```
 
-### Cobertura:
-
-| Suite | Tests | Cubre |
-|-------|-------|-------|
-| `helpers.test.js` | 41 | `airlineCode`, `normalizeHHMM`, `todayWithHHMM`, `hhmm`, `destinationIATA`, `statusInfo`, `getHoraReal`, integridad de mapas IATA/destinos |
-| `exchange.test.js` | 5 | Endpoint de tipo de cambio: respuesta OK, upstream error, fetch error, validación de headers |
-
-### Estructura:
-- `helpers.js` — Módulo con funciones puras extraídas del widget para testing
-- `__tests__/helpers.test.js` — Tests de lógica de vuelos
-- `__tests__/exchange.test.js` — Tests del endpoint de tipo de cambio
+46 tests en 2 suites (helpers + exchange endpoint).
 
 ---
 
-## 16. Estado del Proyecto
+### Limitaciones
 
-**Estado actual: ESTABLE / PRODUCCIÓN**
-
-- Usado en múltiples aeropuertos
-- Probado con vuelos nacionales e internacionales
-- Maneja inconsistencias reales de NAABOL
-- Suite de 46 tests automatizados con Jest
+- Solo salidas (no llegadas)
+- Sin scroll ni interacción (limitación de Scriptable)
+- Máximo 13 vuelos mostrados
 
 ---
 
-## 17. Posibles Mejoras Futuras
+## PWA
 
-- [ ] Llegadas de vuelos
-- [ ] Toggle salidas / llegadas
-- [ ] Vista extendida para iPad
-- [ ] Agrupación por destino
-- [ ] Métricas operativas (demoras, cancelaciones)
+Por construir.
 
 ---
 
 ## Licencia
 
-Este proyecto está destinado para uso personal y operativo con datos públicos de NAABOL.
+Uso personal y operativo con datos públicos de NAABOL.
