@@ -22,7 +22,7 @@ proxy/
 
 ### Decisiones clave
 
-- **Sin framework** — vanilla HTML/CSS/JS con ES modules
+- **Sin framework** — vanilla HTML/CSS/JS, todo inline
 - **Sin build tools** — archivos estáticos servidos as-is
 - **Sin service worker** — siempre requiere conexión
 - **Sin dependencias npm** — zero dependencies
