@@ -1,0 +1,19 @@
+{
+  "name": "widget-vuelos-bolivia",
+  "version": "1.0.0",
+  "description": "---",
+  "main": "loader-scriptable.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:45717/git/calepes/widget-vuelos-bolivia"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^30.3.0"
+  }
+}
