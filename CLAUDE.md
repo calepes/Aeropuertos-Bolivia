@@ -65,3 +65,6 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 - **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404. PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente.
 - **Sincronización PWA↔Widget:** Los mapas IATA y helpers están duplicados en `pwa/index.html` y `widget/widget-vuelos-naabol.js`. Al modificar uno, actualizar el otro.
 - **RUTA0 vs RUTA:** La API NAABOL usa `-` como separador en RUTA0 y `>>` en RUTA. Ambos indican multidestino.
+- **Cantidad de vuelos responsive:** La PWA calcula dinámicamente cuántos vuelos mostrar según la altura del viewport (mín 5). Se recalcula al rotar/redimensionar.
+- **PWA como ícono iOS:** No hay service worker. Para forzar actualización tras deploy, eliminar ícono y re-agregar desde Safari.
+- **Bug proxy query params:** El proxy pierde parámetros cuando la URL destino tiene `&` (ej: `&tipo=S` se interpreta como param del Worker). La URL destino se pasa URL-encoded vía `encodeURIComponent()` en la PWA, pero el endpoint directo de NAABOL funciona sin proxy.
