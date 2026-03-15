@@ -232,7 +232,7 @@
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
         + ftr.offsetHeight;
       const available = window.innerHeight - chrome;
-      return Math.max(5, Math.floor(available / ROW_HEIGHT));
+      return Math.max(5, Math.round(available / ROW_HEIGHT));
     }
     const DEST_CHARS = 11;
     const RMKS_CHARS = 9;
