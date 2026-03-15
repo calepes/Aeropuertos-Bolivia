@@ -218,7 +218,6 @@
     const ROW_HEIGHT = 26; // 24px flap + 2px margin
 
     function maxFlights() {
-      const clk = document.querySelector('.clock-bar');
       const hdr = document.querySelector('.board-header');
       const apt = document.querySelector('.airport-row');
       const cols = document.querySelector('.col-headers');
@@ -228,7 +227,6 @@
       const padTop = parseFloat(boardStyle.paddingTop);
       const padBot = parseFloat(boardStyle.paddingBottom);
       const chrome = padTop + padBot
-        + clk.offsetHeight + parseFloat(getComputedStyle(clk).marginBottom)
         + hdr.offsetHeight + parseFloat(getComputedStyle(hdr).marginBottom)
         + apt.offsetHeight + parseFloat(getComputedStyle(apt).marginBottom)
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
