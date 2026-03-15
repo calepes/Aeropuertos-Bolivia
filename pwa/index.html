@@ -324,6 +324,15 @@
       return d;
     }
 
+    function todayExact(x) {
+      const h = normalizeHHMM(x);
+      if (!h) return null;
+      const [hh, mm] = h.split(":").map(Number);
+      const d = new Date();
+      d.setHours(hh, mm, 0, 0);
+      return d;
+    }
+
     function hhmm(d) {
       return d
         ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
@@ -411,8 +420,8 @@
           const op = opsMap[vuelo] || {};
           const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
 
-          // Active flights bumped to tomorrow should stay today
-          const isActive = est.delayed || est.preBoarding || est.boarding;
+          // Notable-status flights bumped to tomorrow should stay today
+          const isActive = est.delayed || est.preBoarding || est.boarding || est.canceled;
           if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
             prog.setDate(prog.getDate() - 1);
           }
@@ -420,7 +429,7 @@
           const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(getHoraReal(op, f, tipo)),
+            real: todayExact(getHoraReal(op, f, tipo)),
             ts: prog.getTime(),
             vuelo,
             est,
@@ -429,7 +438,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });
@@ -458,7 +467,7 @@
           const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(horaReal),
+            real: todayExact(horaReal),
             ts: prog.getTime(),
             vuelo,
             est,
@@ -467,7 +476,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });

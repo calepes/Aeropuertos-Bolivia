@@ -115,6 +115,15 @@ function todayWithHHMM(x) {
   return d;
 }
 
+function todayExact(x) {
+  const h = normalizeHHMM(x);
+  if (!h) return null;
+  const [hh, mm] = h.split(":").map(Number);
+  const d = new Date();
+  d.setHours(hh, mm, 0, 0);
+  return d;
+}
+
 function hhmm(d) {
   return d
     ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
@@ -156,6 +165,7 @@ module.exports = {
   normalizeHHMM,
   todayWithHHMM,
   hhmm,
+  todayExact,
   destinationIATA,
   statusInfo,
   getHoraReal
