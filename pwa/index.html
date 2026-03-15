@@ -25,7 +25,7 @@
         radial-gradient(circle, #1a1a1a 0.5px, transparent 0.5px),
         #0d0d0d;
       background-size: 4px 4px;
-      padding: max(14px, env(safe-area-inset-top)) 10px 14px 10px;
+      padding: max(14px, env(safe-area-inset-top)) 10px 4px 10px;
       min-height: 100vh;
       max-width: 600px;
       margin: 0 auto;
@@ -178,7 +178,7 @@
     /* Footer */
     .footer {
       text-align: center;
-      padding: 10px 0;
+      padding: 4px 0;
       font-size: 9px;
       color: #444;
     }
@@ -232,7 +232,7 @@
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
         + ftr.offsetHeight;
       const available = window.innerHeight - chrome;
-      return Math.max(5, Math.round(available / ROW_HEIGHT));
+      return Math.max(5, Math.ceil(available / ROW_HEIGHT));
     }
     const DEST_CHARS = 11;
     const RMKS_CHARS = 9;
