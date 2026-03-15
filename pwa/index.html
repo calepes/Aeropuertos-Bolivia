@@ -49,11 +49,21 @@
       color: #FFFFFF;
       letter-spacing: 3px;
     }
+    .board-header .clock-block {
+      text-align: right;
+    }
     .board-header .clock {
-      font-size: 18px;
-      font-weight: bold;
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
       color: #4CAF50;
       letter-spacing: 1px;
+    }
+    .board-header .date {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 0.5px;
     }
     .refresh-btn {
       background: none;
@@ -177,7 +187,10 @@
     <div class="board-header">
       <span class="icon">&#x1F6EB;</span>
       <div class="title">DEPARTURES</div>
-      <span class="clock" id="clock"></span>
+      <div class="clock-block">
+        <div class="clock" id="clock"></div>
+        <div class="date" id="date"></div>
+      </div>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
     <div class="airport-row">
@@ -541,7 +554,10 @@
 
     // ===== CLOCK =====
     function updateClock() {
-      document.getElementById('clock').textContent = hhmm(new Date());
+      const now = new Date();
+      document.getElementById('clock').textContent = hhmm(now);
+      document.getElementById('date').textContent =
+        now.toLocaleDateString('es-BO', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
     // ===== LOAD + RENDER =====
