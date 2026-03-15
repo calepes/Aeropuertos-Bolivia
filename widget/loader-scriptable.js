@@ -50,4 +50,20 @@ try {
   }
 }
 
-await eval("(async () => { " + code + " })()");
+try {
+  await eval("(async () => { " + code + " })()");
+} catch (err) {
+  console.log("Error ejecutando widget: " + err.message);
+  const w = new ListWidget();
+  w.backgroundColor = new Color("#0A0A0A");
+  const msg = w.addText("⚠ Error: " + err.message);
+  msg.font = Font.mediumSystemFont(12);
+  msg.textColor = new Color("#FF3D00");
+  msg.centerAlignText();
+  if (config.runsInWidget) {
+    Script.setWidget(w);
+  } else {
+    await w.presentMedium();
+  }
+  Script.complete();
+}
