@@ -220,7 +220,7 @@
     const AIRPORTS = {
       VVI: { name: "Viru Viru (VVI)", city: "Santa Cruz", query: "Viru%20Viru" },
       LPB: { name: "El Alto (LPB)", city: "La Paz", query: "El%20Alto" },
-      CBB: { name: "Cochabamba (CBB)", city: "Cochabamba", query: "Cochabamba" },
+      CBB: { name: "Cochabamba (CBB)", city: "Cochabamba", query: "Jorge%20Wilstermann" },
       TJA: { name: "Tarija (TJA)", city: "Tarija", query: "Tarija" },
       SRE: { name: "Sucre (SRE)", city: "Sucre", query: "Sucre" },
       ORU: { name: "Oruro (ORU)", city: "Oruro", query: "Oruro" },
@@ -341,7 +341,7 @@
       ]);
 
       const opsMap = {};
-      for (const o of ops) {
+      for (const o of (Array.isArray(ops) ? ops : [])) {
         const code = airlineCode(o.NOMBRE_AEROLINEA);
         const num = String(o.NRO_VUELO || "").trim();
         const key = code ? `${code}${num}` : num;
@@ -352,7 +352,7 @@
       const max = now + HOURS_AHEAD * 3600 * 1000;
 
       const seenFlights = new Set();
-      const flightsFromItin = (itin || [])
+      const flightsFromItin = (Array.isArray(itin) ? itin : [])
         .map(f => {
           const prog = todayWithHHMM(f.HORA_PROGRAMADA || f.HORA_ESTIMADA);
           if (!prog) return null;
@@ -387,7 +387,7 @@
           return f.ts >= now && f.ts <= max;
         });
 
-      const flightsFromOps = (ops || [])
+      const flightsFromOps = (Array.isArray(ops) ? ops : [])
         .map(o => {
           const code = airlineCode(o.NOMBRE_AEROLINEA);
           const num = String(o.NRO_VUELO || "").trim();

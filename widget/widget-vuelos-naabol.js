@@ -14,7 +14,7 @@ const AIRPORT_PARAM = (args.widgetParameter || "VVI").toUpperCase();
 const AIRPORTS = {
   VVI: { name: "Viru Viru (VVI)", city: "Santa Cruz", query: "Viru%20Viru" },
   LPB: { name: "El Alto (LPB)", city: "La Paz", query: "El%20Alto" },
-  CBB: { name: "Cochabamba (CBB)", city: "Cochabamba", query: "Cochabamba" },
+  CBB: { name: "Cochabamba (CBB)", city: "Cochabamba", query: "Jorge%20Wilstermann" },
   TJA: { name: "Tarija (TJA)", city: "Tarija", query: "Tarija" },
   SRE: { name: "Sucre (SRE)", city: "Sucre", query: "Sucre" },
   ORU: { name: "Oruro (ORU)", city: "Oruro", query: "Oruro" },
