@@ -205,7 +205,7 @@ function getHoraReal(op, f) {
 async function load(url) {
   try {
     const r = new Request(url);
-    r.allowInsecureLoads = true;
+    r.timeoutInterval = 15;
     return await r.loadJSON();
   } catch {
     return [];
@@ -389,6 +389,16 @@ COL_LABELS.forEach((label, i) => {
 });
 
 w.addSpacer(6);
+
+// Mensaje si no hay datos
+if (flights.length === 0) {
+  w.addSpacer(8);
+  const noData = itin.length === 0 && ops.length === 0;
+  const msg = w.addText(noData ? "⚠ Sin conexión a NAABOL" : "No hay vuelos programados");
+  msg.font = Font.mediumSystemFont(13);
+  msg.textColor = noData ? DEM_COLOR : MUTED_COLOR;
+  msg.centerAlignText();
+}
 
 // Filas de vuelos – tira continua de cards
 for (let i = 0; i < flights.length; i++) {
