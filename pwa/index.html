@@ -573,7 +573,7 @@
         document.getElementById('footer').textContent =
           'Actualizado: ' + new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false });
       } catch (e) {
-        status.textContent = 'Error de conexión';
+        status.textContent = 'Error: ' + e.message;
         status.className = 'error';
         status.id = 'status';
       }
