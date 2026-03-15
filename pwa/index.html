@@ -43,7 +43,7 @@
     }
     .board-header .title {
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: 3px;
@@ -54,17 +54,18 @@
       align-items: baseline;
       gap: 6px;
     }
+    .board-header .date {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+    }
     .board-header .clock {
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 700;
       color: #4CAF50;
       letter-spacing: 1px;
-    }
-    .board-header .date {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 11px;
-      color: #555;
     }
     .refresh-btn {
       background: none;
@@ -189,8 +190,8 @@
       <span class="icon">&#x1F6EB;</span>
       <span class="title">DEPARTURES</span>
       <span class="clock-group">
-        <span class="clock" id="clock"></span>
         <span class="date" id="date"></span>
+        <span class="clock" id="clock"></span>
       </span>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
