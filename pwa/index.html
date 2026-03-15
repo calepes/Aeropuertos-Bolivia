@@ -31,52 +31,49 @@
       margin: 0 auto;
     }
 
-    /* Clock bar */
-    .clock-bar {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .clock-bar .clock {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: #4CAF50;
-      letter-spacing: 2px;
-    }
-    .clock-bar .date {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 13px;
-      color: #555;
-    }
-
-    /* Header */
+    /* Header — single line */
     .board-header {
       display: flex;
       align-items: center;
       margin-bottom: 6px;
     }
     .board-header .icon {
-      font-size: 24px;
-      margin-right: 8px;
+      font-size: 20px;
+      margin-right: 6px;
     }
     .board-header .title {
-      flex: 1;
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: 3px;
+    }
+    .board-header .clock-group {
+      margin-left: auto;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .board-header .clock {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #4CAF50;
+      letter-spacing: 1px;
+    }
+    .board-header .date {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 11px;
+      color: #555;
     }
     .refresh-btn {
       background: none;
       border: none;
       color: #4CAF50;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
       padding: 2px 4px;
+      margin-left: 6px;
       opacity: 0.6;
     }
 
@@ -188,13 +185,13 @@
 </head>
 <body>
   <div class="board">
-    <div class="clock-bar">
-      <span class="clock" id="clock"></span>
-      <span class="date" id="date"></span>
-    </div>
     <div class="board-header">
       <span class="icon">&#x1F6EB;</span>
-      <div class="title">DEPARTURES</div>
+      <span class="title">DEPARTURES</span>
+      <span class="clock-group">
+        <span class="clock" id="clock"></span>
+        <span class="date" id="date"></span>
+      </span>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
     <div class="airport-row">
