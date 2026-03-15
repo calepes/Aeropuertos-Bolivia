@@ -6,6 +6,7 @@ const {
   airlineCode,
   normalizeHHMM,
   todayWithHHMM,
+  todayExact,
   hhmm,
   destinationIATA,
   statusInfo,
@@ -138,6 +139,35 @@ describe("todayWithHHMM", () => {
       const timeStr = `${pastHour}:00`;
       const result = todayWithHHMM(timeStr);
       expect(result.getTime()).toBeGreaterThan(now.getTime());
+    }
+  });
+});
+
+// ─────────────────────────────────────────────
+// todayExact
+// ─────────────────────────────────────────────
+describe("todayExact", () => {
+  test("retorna null para entradas inválidas", () => {
+    expect(todayExact("")).toBeNull();
+    expect(todayExact(null)).toBeNull();
+    expect(todayExact("no hora")).toBeNull();
+  });
+
+  test("retorna un Date para hora válida", () => {
+    const result = todayExact("15:30");
+    expect(result).toBeInstanceOf(Date);
+    expect(result.getHours()).toBe(15);
+    expect(result.getMinutes()).toBe(30);
+  });
+
+  test("hora pasada NO se mueve al día siguiente", () => {
+    const now = new Date();
+    const pastHour = now.getHours() - 2;
+    if (pastHour >= 0) {
+      const timeStr = `${pastHour}:00`;
+      const result = todayExact(timeStr);
+      expect(result.getDate()).toBe(now.getDate());
+      expect(result.getTime()).toBeLessThan(now.getTime());
     }
   });
 });

@@ -324,6 +324,15 @@
       return d;
     }
 
+    function todayExact(x) {
+      const h = normalizeHHMM(x);
+      if (!h) return null;
+      const [hh, mm] = h.split(":").map(Number);
+      const d = new Date();
+      d.setHours(hh, mm, 0, 0);
+      return d;
+    }
+
     function hhmm(d) {
       return d
         ? d.toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit", hour12: false })
@@ -420,7 +429,7 @@
           const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(getHoraReal(op, f, tipo)),
+            real: todayExact(getHoraReal(op, f, tipo)),
             ts: prog.getTime(),
             vuelo,
             est,
@@ -458,7 +467,7 @@
           const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(horaReal),
+            real: todayExact(horaReal),
             ts: prog.getTime(),
             vuelo,
             est,
