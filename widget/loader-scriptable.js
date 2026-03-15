@@ -2,7 +2,11 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-blue; icon-glyph: plane-departure;
 
-const RAW_URL = "https://raw.githubusercontent.com/calepes/Aeropuertos-Bolivia/main/widget/widget-vuelos-naabol.js";
+const REPO = "calepes/Aeropuertos-Bolivia";
+const BRANCH = "main";
+const FILE = "widget/widget-vuelos-naabol.js";
+const RAW_URL = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH + "/" + FILE;
+
 const fm = FileManager.iCloud();
 const cacheDir = fm.joinPath(fm.documentsDirectory(), "vuelos-cache");
 const cachePath = fm.joinPath(cacheDir, "widget-vuelos-naabol.js");
@@ -33,10 +37,17 @@ try {
   }
 }
 
-// 3. Ejecutar widget o mostrar error
+// 3. Ejecutar widget
 if (code && code.length > 100) {
   try {
-    await eval("(async () => { " + code + " })()");
+    // Quitar Script.setWidget/complete del código para llamarlos desde aquí
+    let src = code;
+    src = src.replace(/Script\.setWidget\(w\);?/g, "");
+    src = src.replace(/Script\.complete\(\);?/g, "");
+    src = src.replace(/if\s*\(\s*!config\.runsInWidget\s*\)\s*\{[^}]*\}/g, "");
+    const w = await eval("(async () => { " + src + "; return w; })()");
+    Script.setWidget(w);
+    if (!config.runsInWidget) await w.presentLarge();
   } catch (err) {
     console.log("Error widget: " + err.message);
     const w = new ListWidget();
@@ -46,7 +57,6 @@ if (code && code.length > 100) {
     msg.textColor = new Color("#FF3D00");
     msg.centerAlignText();
     Script.setWidget(w);
-    Script.complete();
   }
 } else {
   const w = new ListWidget();
@@ -56,5 +66,6 @@ if (code && code.length > 100) {
   msg.textColor = new Color("#FF3D00");
   msg.centerAlignText();
   Script.setWidget(w);
-  Script.complete();
 }
+
+Script.complete();
