@@ -31,6 +31,27 @@
       margin: 0 auto;
     }
 
+    /* Clock bar */
+    .clock-bar {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .clock-bar .clock {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #4CAF50;
+      letter-spacing: 2px;
+    }
+    .clock-bar .date {
+      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 13px;
+      color: #555;
+    }
+
     /* Header */
     .board-header {
       display: flex;
@@ -38,32 +59,16 @@
       margin-bottom: 6px;
     }
     .board-header .icon {
-      font-size: 28px;
-      margin-right: 10px;
+      font-size: 24px;
+      margin-right: 8px;
     }
     .board-header .title {
       flex: 1;
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: 3px;
-    }
-    .board-header .clock-block {
-      text-align: right;
-    }
-    .board-header .clock {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: #4CAF50;
-      letter-spacing: 1px;
-    }
-    .board-header .date {
-      font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 10px;
-      color: #555;
-      letter-spacing: 0.5px;
     }
     .refresh-btn {
       background: none;
@@ -71,7 +76,6 @@
       color: #4CAF50;
       font-size: 18px;
       cursor: pointer;
-      margin-left: 6px;
       padding: 2px 4px;
       opacity: 0.6;
     }
@@ -184,13 +188,13 @@
 </head>
 <body>
   <div class="board">
+    <div class="clock-bar">
+      <span class="clock" id="clock"></span>
+      <span class="date" id="date"></span>
+    </div>
     <div class="board-header">
       <span class="icon">&#x1F6EB;</span>
       <div class="title">DEPARTURES</div>
-      <div class="clock-block">
-        <div class="clock" id="clock"></div>
-        <div class="date" id="date"></div>
-      </div>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
     </div>
     <div class="airport-row">
@@ -216,6 +220,7 @@
     const ROW_HEIGHT = 26; // 24px flap + 2px margin
 
     function maxFlights() {
+      const clk = document.querySelector('.clock-bar');
       const hdr = document.querySelector('.board-header');
       const apt = document.querySelector('.airport-row');
       const cols = document.querySelector('.col-headers');
@@ -225,6 +230,7 @@
       const padTop = parseFloat(boardStyle.paddingTop);
       const padBot = parseFloat(boardStyle.paddingBottom);
       const chrome = padTop + padBot
+        + clk.offsetHeight + parseFloat(getComputedStyle(clk).marginBottom)
         + hdr.offsetHeight + parseFloat(getComputedStyle(hdr).marginBottom)
         + apt.offsetHeight + parseFloat(getComputedStyle(apt).marginBottom)
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
