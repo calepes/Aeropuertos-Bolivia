@@ -31,59 +31,69 @@
       margin: 0 auto;
     }
 
-    /* Selector */
-    .selector { margin-bottom: 10px; }
-    .selector select {
-      width: 100%;
-      padding: 8px 12px;
-      background: #1a1a1a;
-      color: #FFD600;
-      border: 1px solid #333;
-      border-radius: 4px;
-      font-size: 13px;
-      font-family: inherit;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
-    }
-
     /* Header */
     .board-header {
       display: flex;
       align-items: center;
       margin-bottom: 12px;
     }
-    .board-header .icon {
+    .airport-select-wrap {
+      position: relative;
+      margin-right: 8px;
+    }
+    .airport-select-wrap select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: none;
+      border: none;
+      color: #FFFFFF;
+      font-family: inherit;
       font-size: 28px;
-      margin-right: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 0;
+      padding-right: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .airport-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      font-size: 12px;
+      pointer-events: none;
     }
     .board-header .title-block { flex: 1; }
     .board-header .title {
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
       letter-spacing: 3px;
     }
     .board-header .subtitle {
       font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 12px;
-      color: #888;
+      font-size: 11px;
+      color: #555;
       letter-spacing: 1px;
       margin-top: 1px;
     }
     .board-header .clock {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: bold;
-      color: #FFD600;
+      color: #4CAF50;
+      letter-spacing: 1px;
     }
     .refresh-btn {
       background: none;
       border: none;
-      color: #FFD600;
+      color: #4CAF50;
       font-size: 18px;
       cursor: pointer;
-      margin-left: 8px;
+      margin-left: 6px;
       padding: 2px 4px;
       opacity: 0.6;
     }
@@ -165,14 +175,13 @@
 </head>
 <body>
   <div class="board">
-    <div class="selector">
-      <select id="airport-select"></select>
-    </div>
     <div class="board-header">
-      <span class="icon">&#x1F6EB;</span>
+      <div class="airport-select-wrap">
+        <select id="airport-select"></select>
+      </div>
       <div class="title-block">
         <div class="title">DEPARTURES</div>
-        <div class="subtitle" id="airport-name">Viru Viru (VVI)</div>
+        <div class="subtitle" id="airport-name">Santa Cruz</div>
       </div>
       <span class="clock" id="clock"></span>
       <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">&#x21BB;</button>
@@ -197,7 +206,6 @@
     const ROW_HEIGHT = 26; // 24px flap + 2px margin
 
     function maxFlights() {
-      const sel = document.querySelector('.selector');
       const hdr = document.querySelector('.board-header');
       const cols = document.querySelector('.col-headers');
       const ftr = document.querySelector('.footer');
@@ -206,7 +214,6 @@
       const padTop = parseFloat(boardStyle.paddingTop);
       const padBot = parseFloat(boardStyle.paddingBottom);
       const chrome = padTop + padBot
-        + sel.offsetHeight + parseFloat(getComputedStyle(sel).marginBottom)
         + hdr.offsetHeight + parseFloat(getComputedStyle(hdr).marginBottom)
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
         + ftr.offsetHeight;
@@ -523,14 +530,14 @@
       for (const [code, info] of Object.entries(AIRPORTS)) {
         const opt = document.createElement('option');
         opt.value = code;
-        opt.textContent = `${code} — ${info.name}`;
+        opt.textContent = code;
         if (code === currentAirport) opt.selected = true;
         sel.appendChild(opt);
       }
       sel.addEventListener('change', () => {
         currentAirport = sel.value;
         const airport = AIRPORTS[currentAirport];
-        document.getElementById('airport-name').textContent = airport.name;
+        document.getElementById('airport-name').textContent = airport.city;
         loadFlights();
       });
     }
