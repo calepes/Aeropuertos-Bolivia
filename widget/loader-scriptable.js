@@ -36,7 +36,16 @@ try {
 // 3. Ejecutar widget o mostrar error
 if (code && code.length > 100) {
   try {
-    await eval("(async () => { " + code + " })()");
+    // Strip Script.setWidget/complete from code so we can call them at top level
+    // (eval IIFE scope prevents Scriptable from registering the widget on home screen)
+    let src = code;
+    src = src.replace(/Script\.setWidget\(w\);?/g, "");
+    src = src.replace(/Script\.complete\(\);?/g, "");
+    src = src.replace(/if\s*\(\s*!config\.runsInWidget\s*\)\s*\{[^}]*\}/g, "");
+    const w = await eval("(async () => { " + src + "; return w; })()");
+    Script.setWidget(w);
+    if (!config.runsInWidget) await w.presentLarge();
+    Script.complete();
   } catch (err) {
     console.log("Error widget: " + err.message);
     const w = new ListWidget();
