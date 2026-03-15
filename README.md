@@ -107,7 +107,7 @@ npm install
 npm test
 ```
 
-46 tests en 2 suites (helpers + exchange endpoint).
+Tests de helpers (funciones puras).
 
 ---
 
