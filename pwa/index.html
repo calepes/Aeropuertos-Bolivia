@@ -420,8 +420,8 @@
           const op = opsMap[vuelo] || {};
           const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
 
-          // Active flights bumped to tomorrow should stay today
-          const isActive = est.delayed || est.preBoarding || est.boarding;
+          // Notable-status flights bumped to tomorrow should stay today
+          const isActive = est.delayed || est.preBoarding || est.boarding || est.canceled;
           if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
             prog.setDate(prog.getDate() - 1);
           }
@@ -438,7 +438,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });
@@ -476,7 +476,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });
