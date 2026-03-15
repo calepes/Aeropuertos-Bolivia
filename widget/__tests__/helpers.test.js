@@ -211,6 +211,12 @@ describe("destinationIATA", () => {
 // statusInfo
 // ─────────────────────────────────────────────
 describe("statusInfo", () => {
+  test("detecta aterrizaje", () => {
+    expect(statusInfo("ATERRIZADO").text).toBe("LND");
+    expect(statusInfo("LANDED").text).toBe("LND");
+    expect(statusInfo("aterrizado").text).toBe("LND");
+  });
+
   test("detecta pre-embarque", () => {
     const result = statusInfo("PRE EMBARQUE");
     expect(result.text).toBe("PRE");
@@ -276,6 +282,22 @@ describe("getHoraReal", () => {
     expect(getHoraReal({}, {})).toBeNull();
     expect(getHoraReal(null, null)).toBeNull();
     expect(getHoraReal(undefined, undefined)).toBeNull();
+  });
+
+  test("usa HORA_REAL_LLEGADA para llegadas (tipo L)", () => {
+    expect(getHoraReal({ HORA_REAL_LLEGADA: "12:00" }, {}, 'L')).toBe("12:00");
+  });
+
+  test("usa HORA_LLEGADA_REAL como fallback para llegadas", () => {
+    expect(getHoraReal({ HORA_LLEGADA_REAL: "13:00" }, {}, 'L')).toBe("13:00");
+  });
+
+  test("prioriza f.HORA_REAL sobre op para llegadas", () => {
+    expect(getHoraReal({ HORA_REAL_LLEGADA: "12:00" }, { HORA_REAL: "11:30" }, 'L')).toBe("11:30");
+  });
+
+  test("sin tipo usa campos de salida (backwards compatible)", () => {
+    expect(getHoraReal({ HORA_REAL_SALIDA: "10:00", HORA_REAL_LLEGADA: "12:00" }, {})).toBe("10:00");
   });
 });
 

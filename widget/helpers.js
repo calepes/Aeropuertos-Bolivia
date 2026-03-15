@@ -132,6 +132,7 @@ function destinationIATA(route) {
 
 function statusInfo(obs) {
   const s = (obs || "").toUpperCase();
+  if (s.includes("ATERRI") || s.includes("LANDED")) return { text: "LND" };
   if (s.includes("PRE")) return { text: "PRE", preBoarding: true };
   if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
   if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DEM", delayed: true };
@@ -139,7 +140,10 @@ function statusInfo(obs) {
   return { text: "OK" };
 }
 
-function getHoraReal(op, f) {
+function getHoraReal(op, f, tipo) {
+  if (tipo === 'L') {
+    return f?.HORA_REAL || op?.HORA_REAL_LLEGADA || op?.HORA_LLEGADA_REAL || null;
+  }
   return f?.HORA_REAL || op?.HORA_REAL_SALIDA || op?.HORA_SALIDA_REAL || null;
 }
 

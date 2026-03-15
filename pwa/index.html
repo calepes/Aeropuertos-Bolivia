@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title>Salidas — Aeropuertos Bolivia</title>
+  <title>Vuelos — Aeropuertos Bolivia</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icons/icon-32.png" type="image/png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -47,6 +47,16 @@
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: 3px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .board-header .title:active { opacity: 0.5; }
+    .board-header .toggle-hint {
+      font-size: 14px;
+      color: #666;
+      margin-left: 4px;
+      cursor: pointer;
     }
     .board-header .clock-group {
       margin-left: auto;
@@ -187,8 +197,9 @@
 <body>
   <div class="board">
     <div class="board-header">
-      <span class="icon">&#x1F6EB;</span>
-      <span class="title">DEPARTURES</span>
+      <span class="icon" id="type-icon">&#x1F6EB;</span>
+      <span class="title" id="type-title" onclick="toggleFlightType()">DEPARTURES</span>
+      <span class="toggle-hint" onclick="toggleFlightType()">&#x21C4;</span>
       <span class="clock-group">
         <span class="date" id="date"></span>
         <span class="clock" id="clock"></span>
@@ -201,7 +212,7 @@
     <div class="col-headers">
       <span class="col-label col-time">TIME</span>
       <span class="col-label col-sep"></span>
-      <span class="col-label col-dest">DESTINATION</span>
+      <span class="col-label col-dest" id="col-dest-label">DESTINATION</span>
       <span class="col-label col-sep"></span>
       <span class="col-label col-flight">FLIGHT</span>
       <span class="col-label col-sep"></span>
@@ -332,6 +343,7 @@
 
     function statusInfo(obs) {
       const s = (obs || "").toUpperCase();
+      if (s.includes("ATERRI") || s.includes("LANDED")) return { text: "LANDED", css: "emb" };
       if (s.includes("PRE")) return { text: "PRE-BOARD", css: "pre", preBoarding: true };
       if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "BOARDING", css: "emb", boarding: true };
       if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DELAYED", css: "dem", delayed: true };
@@ -339,8 +351,20 @@
       return { text: "ON TIME", css: "ok" };
     }
 
-    function getHoraReal(op, f) {
+    function getHoraReal(op, f, tipo) {
+      if (tipo === 'L') {
+        return f?.HORA_REAL || op?.HORA_REAL_LLEGADA || op?.HORA_LLEGADA_REAL || null;
+      }
       return f?.HORA_REAL || op?.HORA_REAL_SALIDA || op?.HORA_SALIDA_REAL || null;
+    }
+
+    function originName(ruta0, ruta) {
+      const source = ruta0 || ruta;
+      if (!source) return "";
+      const stops = source.split(/\s*(?:>>|-)\s*/).filter(Boolean);
+      // For arrivals, origin is the first stop; last stop is this airport
+      const name = stops[0].toUpperCase();
+      return stops.length > 1 ? name + "+" : name;
     }
 
     // ===== PROXY FETCH =====
@@ -353,8 +377,9 @@
     // ===== FETCH + MERGE =====
     async function fetchFlights(airportCode) {
       const airport = AIRPORTS[airportCode] || AIRPORTS.VVI;
-      const urlItin = `https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=${airport.query}&tipo=S`;
-      const urlOps = `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${airport.query}&tipo=S`;
+      const tipo = currentType;
+      const urlItin = `https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=${airport.query}&tipo=${tipo}`;
+      const urlOps = `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${airport.query}&tipo=${tipo}`;
 
       const [itin, ops] = await Promise.all([
         proxyFetch(urlItin).catch(() => []),
@@ -392,13 +417,14 @@
             prog.setDate(prog.getDate() - 1);
           }
 
+          const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(getHoraReal(op, f)),
+            real: todayWithHHMM(getHoraReal(op, f, tipo)),
             ts: prog.getTime(),
             vuelo,
             est,
-            destName: destinationName(f.RUTA0, f.RUTA || op.DESTINO)
+            destName: nameFunc(f.RUTA0, f.RUTA || op.DESTINO)
           };
         })
         .filter(f => {
@@ -426,13 +452,17 @@
             prog.setDate(prog.getDate() - 1);
           }
 
+          const horaReal = tipo === 'L'
+            ? (o.HORA_REAL || o.HORA_REAL_LLEGADA)
+            : (o.HORA_REAL || o.HORA_REAL_SALIDA);
+          const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
             prog,
-            real: todayWithHHMM(o.HORA_REAL || o.HORA_REAL_SALIDA),
+            real: todayWithHHMM(horaReal),
             ts: prog.getTime(),
             vuelo,
             est,
-            destName: destinationName(o.DESTINO, o.RUTA)
+            destName: nameFunc(o.DESTINO, o.RUTA)
           };
         })
         .filter(f => {
@@ -534,6 +564,19 @@
 
         container.appendChild(row);
       }
+    }
+
+    // ===== FLIGHT TYPE TOGGLE =====
+    let currentType = 'S'; // S = Salidas/Departures, L = Llegadas/Arrivals
+
+    function toggleFlightType() {
+      currentType = currentType === 'S' ? 'L' : 'S';
+      const isDep = currentType === 'S';
+      document.getElementById('type-icon').innerHTML = isDep ? '&#x1F6EB;' : '&#x1F6EC;';
+      document.getElementById('type-title').textContent = isDep ? 'DEPARTURES' : 'ARRIVALS';
+      document.getElementById('col-dest-label').textContent = isDep ? 'DESTINATION' : 'ORIGIN';
+      document.title = (isDep ? 'Salidas' : 'Llegadas') + ' — Aeropuertos Bolivia';
+      loadFlights();
     }
 
     // ===== SELECTOR =====
