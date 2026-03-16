@@ -352,7 +352,7 @@
 
     function statusInfo(obs) {
       const s = (obs || "").toUpperCase();
-      if (s.includes("ATERRI") || s.includes("LANDED")) return { text: "LANDED", css: "emb" };
+      if (s.includes("TIERRA") || s.includes("ATERRI") || s.includes("LANDED")) return { text: "LANDED", css: "land", landed: true };
       if (s.includes("PRE")) return { text: "PRE-BOARD", css: "pre", preBoarding: true };
       if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "BOARDING", css: "emb", boarding: true };
       if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DELAYED", css: "dem", delayed: true };
@@ -421,7 +421,7 @@
           const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
 
           // Notable-status flights bumped to tomorrow should stay today
-          const isActive = est.delayed || est.preBoarding || est.boarding || est.canceled;
+          const isActive = est.delayed || est.preBoarding || est.boarding || est.landed || est.canceled;
           if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
             prog.setDate(prog.getDate() - 1);
           }
@@ -438,7 +438,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });
@@ -456,7 +456,7 @@
 
           const est = statusInfo(o.ESTADO || o.COMENTARIOS);
 
-          const isActive = est.delayed || est.preBoarding || est.boarding;
+          const isActive = est.delayed || est.preBoarding || est.boarding || est.landed || est.canceled;
           if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
             prog.setDate(prog.getDate() - 1);
           }
@@ -476,7 +476,7 @@
         })
         .filter(f => {
           if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.canceled;
+          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled;
           if (active) return true;
           return f.ts >= now && f.ts <= max;
         });
@@ -495,6 +495,7 @@
       ok: '#FFFFFF',
       pre: '#42A5F5',
       emb: '#4CAF50',
+      land: '#4CAF50',
       dem: '#FF3D00',
       can: '#FF3D00'
     };
