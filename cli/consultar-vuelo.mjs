@@ -331,7 +331,6 @@ async function runAll(args) {
   const output = {
     consultadoTs: new Date().toISOString(),
     fuente: 'NAABOL',
-    nota: 'Endpoint operativo de NAABOL caído (404). Datos del itinerario + gate cuando ya está asignado. Ventana ~12h adelante.',
     consulta: {
       modo: 'all',
       aeropuerto: ap,
@@ -343,6 +342,9 @@ async function runAll(args) {
     total: allMatches.length,
     matches: allMatches,
   };
+  if (allMatches.length === 0) {
+    output.nota = 'Sin resultados en el itinerario NAABOL para esta consulta. Verificá código de vuelo o aeropuerto.';
+  }
   if (errors.length) output.errors = errors;
   console.log(JSON.stringify(output, null, 2));
   process.exit(0);
@@ -438,12 +440,15 @@ async function main() {
     };
   });
 
+  const totalMatches = resultados.reduce((acc, r) => acc + (r.matches?.length || 0), 0);
   const output = {
     consultadoTs: new Date().toISOString(),
     fuente: 'NAABOL',
-    nota: 'Endpoint operativo de NAABOL caído (404). Datos del itinerario + gate cuando ya está asignado. Ventana ~12h adelante.',
     resultados,
   };
+  if (totalMatches === 0) {
+    output.nota = 'Sin resultados en el itinerario NAABOL para esta consulta. Verificá código de vuelo o aeropuerto.';
+  }
   if (errors.length) output.errors = errors;
 
   console.log(JSON.stringify(output, null, 2));

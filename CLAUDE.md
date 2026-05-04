@@ -53,6 +53,7 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 ### API NAABOL
 - Datos de vuelos vienen de `fids.naabol.gob.bo` — endpoints de itinerario (hora programada) y operativo (hora real + estado)
 - **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404. PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente.
+- **Output CLI minimalista**: `cli/consultar-vuelo.mjs` omite el campo `nota` cuando `matches[]` trae items — solo aparece sin resultados. Mantener outputs minimalistas para no confundir LLMs que wrapean el CLI (ver CHANGELOG 2026-05-04).
 - **RUTA0 vs RUTA:** `-` como separador en RUTA0, `>>` en RUTA. Ambos indican multidestino.
 - **Estados arrivals:** La API usa "EN TIERRA" para vuelos aterrizados. `statusInfo()` detecta TIERRA, ATERRI y LANDED.
 
