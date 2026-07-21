@@ -273,6 +273,14 @@ describe("statusInfo", () => {
     expect(statusInfo("CANCELLED").text).toBe("CAN");
   });
 
+  test("detecta información", () => {
+    expect(statusInfo("INFORMES").text).toBe("INF");
+    expect(statusInfo("INFORMES").information).toBe(true);
+    expect(statusInfo("INFORMATION").text).toBe("INF");
+    expect(statusInfo("INFORMATION").information).toBe(true);
+    expect(statusInfo("informes").text).toBe("INF");
+  });
+
   test("retorna OK por defecto", () => {
     expect(statusInfo("").text).toBe("OK");
     expect(statusInfo(null).text).toBe("OK");

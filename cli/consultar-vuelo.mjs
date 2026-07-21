@@ -85,6 +85,7 @@ function categorizeStatus(obsEs, obsEn) {
   if (en.includes('LANDED') || en.includes('TIERRA') || es.includes('ATERRIZ') || es.includes('EN TIERRA')) return 'landed';
   if (en.includes('DEPARTED') || es.includes('DESPACH') || es.includes('DESPEG')) return 'departed';
   if (en.includes('CHECK')) return 'check-in';
+  if (en.includes('INFORM') || es.includes('INFORM')) return 'information';
   if (en === '' || en.includes('ON TIME') || en.includes('CONFIRMED') || es === '' || es.includes('A TIEMPO') || es.includes('CONFIRMADO')) return 'on-time';
   return 'other';
 }

@@ -50,6 +50,7 @@ const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
 const OK_COLOR = new Color("#FFFFFF");
+const INF_COLOR = new Color("#FFB300");
 const UPD_COLOR = new Color("#FF9800");
 const MUTED_COLOR = new Color("#555555");
 
@@ -191,6 +192,7 @@ function statusInfo(obs) {
   if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
   if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DEM", delayed: true };
   if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
+  if (s.includes("INFORM")) return { text: "INF", information: true };
   return { text: "OK" };
 }
 
@@ -253,7 +255,7 @@ const flightsFromItin = (itin || [])
   })
   .filter(f => {
     if (!f) return false;
-    const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+    const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.information;
     if (active) return true;
     return f.ts >= now && f.ts <= max;
   });
@@ -283,7 +285,7 @@ const flightsFromOps = (ops || [])
   })
   .filter(f => {
     if (!f) return false;
-    const active = f.est.delayed || f.est.preBoarding || f.est.boarding;
+    const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.information;
     if (active) return true;
     return f.ts >= now && f.ts <= max;
   });
@@ -414,6 +416,7 @@ for (let i = 0; i < flights.length; i++) {
   else if (f.est.boarding) estColor = EMB_COLOR;
   else if (f.est.delayed) estColor = DEM_COLOR;
   else if (f.est.canceled) estColor = CAN_COLOR;
+  else if (f.est.information) estColor = INF_COLOR;
   else estColor = OK_COLOR;
 
   addBoardRow(w, [

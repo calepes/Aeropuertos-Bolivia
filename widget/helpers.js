@@ -146,6 +146,7 @@ function statusInfo(obs) {
   if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "EMB", boarding: true };
   if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DEM", delayed: true };
   if (s.includes("CANCEL")) return { text: "CAN", canceled: true };
+  if (s.includes("INFORM")) return { text: "INF", information: true };
   return { text: "OK" };
 }
 
