@@ -1,5 +1,16 @@
 # CHANGELOG — Aeropuertos Bolivia
 
+## 2026-07-21
+
+### Soporte nuevo estado INFORMATION / INFORMES de NAABOL
+
+- **PWA, Widget, CLI:** NAABOL agregó un nuevo estado `OBSERVACION: "INFORMES"` / `OBSERVACION_INGLES: "INFORMATION"` para vuelos con información disponible antes del pre-embarque (puerta asignada, vuelo procesado pero sin abordar aún).
+- **Bug anterior:** `statusInfo()` no reconocía "INFORMES" → caía a ON TIME sin flag `active`. Combinado con `HORA_ESTIMADA` ya pasada (ej. 05:20 para vuelos con retraso), el filtro de tiempo `f.ts < now` los descartaba y no aparecían en la PWA ni el widget.
+- **Fix PWA:** `statusInfo()` detecta `s.includes("INFORM")` → `{ text: "INFO", css: "info", information: true }`. Color `#B3E5FC` (azul hielo). Filtros `active`/`isActive` incluyen `est.information`.
+- **Fix Widget:** mismo ajuste en `statusInfo()` + `INF_COLOR = #B3E5FC`. `active` check incluye `f.est.information`.
+- **Fix CLI `consultar-vuelo.mjs`:** `categorizeStatus()` devuelve `'information'` para INFORMES/INFORMATION en vez de caer a `'other'`.
+- **Tests:** 3 nuevos casos en `widget/__tests__/helpers.test.js` (INFORMES, INFORMATION, informes minúscula).
+
 ## 2026-05-04
 
 ### Fix CLI `consultar-vuelo.mjs` — output minimalista para LLMs
