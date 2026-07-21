@@ -50,7 +50,7 @@ const EMB_COLOR = new Color("#4CAF50");
 const DEM_COLOR = new Color("#FF3D00");
 const CAN_COLOR = new Color("#FF3D00");
 const OK_COLOR = new Color("#FFFFFF");
-const INF_COLOR = new Color("#FFB300");
+const INF_COLOR = new Color("#B3E5FC");
 const UPD_COLOR = new Color("#FF9800");
 const MUTED_COLOR = new Color("#555555");
 

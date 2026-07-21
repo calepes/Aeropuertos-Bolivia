@@ -357,7 +357,7 @@
       if (s.includes("EMBAR") || s.includes("ABORD")) return { text: "BOARDING", css: "emb", boarding: true };
       if (s.includes("DEMOR") || s.includes("DELAY")) return { text: "DELAYED", css: "dem", delayed: true };
       if (s.includes("CANCEL")) return { text: "CANCELLED", css: "can", canceled: true };
-      if (s.includes("INFORM")) return { text: "INFORMATION", css: "info", information: true };
+      if (s.includes("INFORM")) return { text: "INFO", css: "info", information: true };
       return { text: "ON TIME", css: "ok" };
     }
 
@@ -499,7 +499,7 @@
       land: '#4CAF50',
       dem: '#FF3D00',
       can: '#FF3D00',
-      info: '#FFB300'
+      info: '#B3E5FC'
     };
 
     function createFlap(ch, color) {
