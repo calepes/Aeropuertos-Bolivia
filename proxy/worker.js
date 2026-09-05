@@ -1,10 +1,10 @@
 const ALLOWED_DOMAINS = ['fids.naabol.gob.bo'];
 
-// Solo la PWA. Antes era '*', o sea cualquier web podía colgarse de este proxy y
-// gastar la cuota diaria de Workers de la cuenta — que comparten los demás workers.
-// No frena a un cliente que no sea browser (curl ignora CORS); para eso haría falta
-// rate limiting de zona, y workers.dev no es una zona propia.
-const ALLOWED_ORIGINS = ['https://apps.lepesqueur.net', 'http://apps.lepesqueur.net'];
+// Solo la PWA. Antes era '*', o sea cualquier web podía colgarse de este proxy.
+// El Pages de Aeropuertos-Bolivia tiene https_enforced desde 2026-09-05, así que
+// el origen http:// ya no existe. CORS no frena a un cliente que no sea browser
+// (curl lo ignora): para eso está el rate limiting por IP de abajo.
+const ALLOWED_ORIGINS = ['https://apps.lepesqueur.net'];
 
 function corsHeaders(request) {
   const origin = request.headers.get('Origin');
@@ -24,11 +24,24 @@ export function isTargetAllowed(parsed) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const CORS_HEADERS = corsHeaders(request);
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
+    }
+
+    // Freno por IP antes de tocar NAABOL. Se evalúa después del OPTIONS para no
+    // gastar el cupo en preflights, que el browser manda solo y no pegan upstream.
+    if (env?.RATE_LIMITER) {
+      const ip = request.headers.get('CF-Connecting-IP') ?? 'sin-ip';
+      const { success } = await env.RATE_LIMITER.limit({ key: ip });
+      if (!success) {
+        return new Response(JSON.stringify({ error: 'Rate limited' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '60', ...CORS_HEADERS },
+        });
+      }
     }
 
     const url = new URL(request.url);

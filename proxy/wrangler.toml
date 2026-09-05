@@ -1,3 +1,18 @@
 name = "aeropuertos-proxy"
 main = "worker.js"
 compatibility_date = "2024-01-01"
+
+# Freno de abuso por IP, complementario al `Cache-Control: public, max-age=60` de
+# las respuestas. Verificado en producción 2026-09-05:
+#   - URL repetida     → Cloudflare sirve de caché de borde y el Worker NI SE INVOCA
+#                        (26 repeticiones seguidas, 0 llegaron al limitador).
+#   - URL cache-busted → el Worker corre y el límite dispara (primer 429 en la 14 de 28).
+# O sea el scraping ingenuo no gasta cuota, y el que rompe caché queda capado.
+# Es por-colo y eventualmente consistente: un freno, no contabilidad exacta.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "4701"
+
+  [ratelimits.simple]
+  limit = 20
+  period = 60
