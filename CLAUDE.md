@@ -49,10 +49,16 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 - **Siempre `git pull` antes de editar:** Otras sesiones de Claude Code pueden haber pusheado cambios via PRs. Hacer pull al inicio para evitar conflictos.
 - **Sincronización crítica:** Al modificar funciones helper, copiar cambios entre `widget-vuelos-naabol.js` ↔ `helpers.js` (son copias, no comparten código)
 - **Sincronización PWA↔Widget:** Los mapas IATA y helpers están duplicados en `pwa/index.html` y `widget/widget-vuelos-naabol.js`. Al modificar uno, actualizar el otro.
+- **⚠️ Divergencia deliberada desde 2026-09-05:** el fix de fechas (`dateWithHHMM`) se aplicó SOLO a la PWA. `widget/helpers.js:114` y `widget/widget-vuelos-naabol.js:170` conservan el `todayWithHHMM` viejo con el bug del tablero en blanco de noche. Cal confirmó que **ya no usa el widget de iOS**, así que no se tocó. Si alguna vez se reactiva, portar el fix antes de usarlo.
 
 ### API NAABOL
 - Datos de vuelos vienen de `fids.naabol.gob.bo` — endpoints de itinerario (hora programada) y operativo (hora real + estado)
-- **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404. PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente.
+- **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404 (reconfirmado 2026-09-05, responde HTML). PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente — por eso la rama `flightsFromOps` sigue en el código aunque hoy nunca ejecute (`opsMap` siempre vacío).
+- **Solo devuelve HOY, y no acepta fecha.** Probados `?fecha=`, `?FECHA=` y `?dia=` (2026-09-05): los tres se ignoran, siempre responde el día en curso. No hay forma de traer el itinerario de mañana.
+- **`HORA_PROGRAMADA` no existe en el payload.** Los campos reales son `HORA_ESTIMADA` y `HORA_REAL`. Cualquier `f.HORA_PROGRAMADA || f.HORA_ESTIMADA` cae siempre al segundo.
+- **Cada fila trae `FECHA`** (ej. `"2026-09-05 00:00:00.000"`). Es la fuente de verdad del día — no inferirlo comparando la hora contra el reloj (ver el bug de abajo).
+- **Poda los vuelos ya operados con rezago de ~1-1,5 h**, no al instante ni a fin de día. Medido 2026-09-05 14:51: Trinidad seguía listando su salida de las 13:30. Consecuencia: la lista casi siempre contiene filas cuya hora ya pasó.
+- **La página oficial (`fids.naabol.gob.bo`) usa este MISMO endpoint** (`js/inti.js`) y lo renderiza crudo, sin filtrar. Si la oficial muestra algo y la PWA no, la diferencia es siempre filtrado nuestro.
 - **Output CLI minimalista**: `cli/consultar-vuelo.mjs` omite el campo `nota` cuando `matches[]` trae items — solo aparece sin resultados. Mantener outputs minimalistas para no confundir LLMs que wrapean el CLI (ver CHANGELOG 2026-05-04).
 - **RUTA0 vs RUTA:** `-` como separador en RUTA0, `>>` en RUTA. Ambos indican multidestino.
 - **Estados arrivals:** La API usa "EN TIERRA" para vuelos aterrizados. `statusInfo()` detecta TIERRA, ATERRI y LANDED.
@@ -61,7 +67,9 @@ Para agregar tests: crear archivos `widget/__tests__/*.test.js`
 - **Cantidad de vuelos responsive:** Calcula dinámicamente cuántos vuelos mostrar según viewport (mín 5). Se recalcula al rotar/redimensionar.
 - **PWA como ícono iOS:** No hay service worker. Para forzar actualización tras deploy, eliminar ícono y re-agregar desde Safari.
 - **Dev local sin datos:** `python3 -m http.server` sirve la PWA pero el proxy CORS rechaza localhost. Para probar con datos reales, deployar a GitHub Pages.
-- **Proxy CORS:** Cloudflare Worker en `https://aeropuertos-proxy.carlos-cb4.workers.dev`. Se administra desde dashboard de Cloudflare (cuenta carlos-cb4), no desde este repo.
+- **Proxy CORS:** Cloudflare Worker en `https://aeropuertos-proxy.carlos-cb4.workers.dev`, código en `proxy/worker.js`, deploy con `wrangler deploy` desde `proxy/`.
+- **Bug del tablero vacío de noche (resuelto en la PWA 2026-09-05):** `todayWithHHMM()` asumía que una hora ya pasada era "de mañana" y sumaba 24 h. Como NAABOL deja los vuelos operados en la lista (ver API arriba), de noche TODAS las filas se empujaban a +17/+23 h, caían fuera de `HOURS_AHEAD` (12 h) y el tablero quedaba en blanco mientras la página oficial sí mostraba vuelos. Reemplazado por `dateWithHHMM(f.FECHA, f.HORA_ESTIMADA)`, que ancla al día que trae el payload. Se eliminó también el contra-hack `if (isActive && ...) prog.setDate(-1)`, que existía solo para deshacer ese empujón. Y si no queda nada por delante, en vez de tablero en blanco se muestra la cola de lo que NAABOL sigue listando (`todos.slice(-maxFlights())`) — igual que la oficial.
+- **Deploy de la PWA:** NO va por `calepes.github.io`. `Aeropuertos-Bolivia` tiene **Pages propio** (`source: main /`), servido como project page bajo el dominio del user site → `apps.lepesqueur.net/Aeropuertos-Bolivia/pwa/`. Push a `main` de ESTE repo = deploy. Sigue en pipeline `legacy` (Jekyll), no `workflow`; `https_enforced` está en `false`.
 
 ### Widget
 - `widget-vuelos-naabol.js` usa APIs de Scriptable (`ListWidget`, `Color`, `Request`, `SFSymbol`, `args`) — no se puede ejecutar en Node

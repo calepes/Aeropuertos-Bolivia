@@ -313,14 +313,19 @@
       return m ? `${m[1].padStart(2, "0")}:${m[2]}` : null;
     }
 
-    function todayWithHHMM(x) {
+    // Ancla la hora al campo FECHA que ya trae el payload de NAABOL
+    // (ej. "2026-09-05 00:00:00.000"). Antes se adivinaba: si la hora ya había
+    // pasado se asumía "es de mañana" y se sumaba un día — pero NAABOL deja los
+    // vuelos ya operados en la lista un buen rato (medido: una salida de las 13:30
+    // seguía en el tablero a las 14:51). De noche eso empujaba TODAS las filas a
+    // +17/+23h, fuera de la ventana de HOURS_AHEAD, y el tablero quedaba en blanco.
+    function dateWithHHMM(fecha, x) {
       const h = normalizeHHMM(x);
       if (!h) return null;
       const [hh, mm] = h.split(":").map(Number);
-      const now = new Date();
-      const d = new Date(now);
+      const dia = String(fecha || "").match(/(\d{4})-(\d{2})-(\d{2})/);
+      const d = dia ? new Date(+dia[1], +dia[2] - 1, +dia[3]) : new Date();
       d.setHours(hh, mm, 0, 0);
-      if (d < now) d.setDate(d.getDate() + 1);
       return d;
     }
 
@@ -410,7 +415,7 @@
       const seenFlights = new Set();
       const flightsFromItin = (Array.isArray(itin) ? itin : [])
         .map(f => {
-          const prog = todayWithHHMM(f.HORA_PROGRAMADA || f.HORA_ESTIMADA);
+          const prog = dateWithHHMM(f.FECHA, f.HORA_ESTIMADA);
           if (!prog) return null;
 
           const code = airlineCode(f.NOMBRE_AEROLINEA);
@@ -420,12 +425,6 @@
 
           const op = opsMap[vuelo] || {};
           const est = statusInfo(op.ESTADO || op.COMENTARIOS || f.OBSERVACION);
-
-          // Notable-status flights bumped to tomorrow should stay today
-          const isActive = est.delayed || est.preBoarding || est.boarding || est.landed || est.canceled || est.information;
-          if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
-            prog.setDate(prog.getDate() - 1);
-          }
 
           const nameFunc = tipo === 'L' ? originName : destinationName;
           return {
@@ -437,12 +436,7 @@
             destName: nameFunc(f.RUTA0, f.RUTA || op.DESTINO)
           };
         })
-        .filter(f => {
-          if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled || f.est.information;
-          if (active) return true;
-          return f.ts >= now && f.ts <= max;
-        });
+        .filter(Boolean);
 
       const flightsFromOps = (Array.isArray(ops) ? ops : [])
         .map(o => {
@@ -452,15 +446,10 @@
 
           if (seenFlights.has(vuelo)) return null;
 
-          const prog = todayWithHHMM(o.HORA_ESTIMADA || o.HORA_PROGRAMADA);
+          const prog = dateWithHHMM(o.FECHA, o.HORA_ESTIMADA);
           if (!prog) return null;
 
           const est = statusInfo(o.ESTADO || o.COMENTARIOS);
-
-          const isActive = est.delayed || est.preBoarding || est.boarding || est.landed || est.canceled || est.information;
-          if (isActive && prog.getTime() - Date.now() > HOURS_AHEAD * 3600 * 1000) {
-            prog.setDate(prog.getDate() - 1);
-          }
 
           const horaReal = tipo === 'L'
             ? (o.HORA_REAL || o.HORA_REAL_LLEGADA)
@@ -475,20 +464,26 @@
             destName: nameFunc(o.DESTINO, o.RUTA)
           };
         })
-        .filter(f => {
-          if (!f) return false;
-          const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled || f.est.information;
-          if (active) return true;
-          return f.ts >= now && f.ts <= max;
-        });
+        .filter(Boolean);
 
-      return [...flightsFromItin, ...flightsFromOps]
-        .sort((a, b) => {
-          const tA = a.real ? a.real.getTime() : a.ts;
-          const tB = b.real ? b.real.getTime() : b.ts;
-          return tA - tB;
-        })
-        .slice(0, maxFlights());
+      const todos = [...flightsFromItin, ...flightsFromOps].sort((a, b) => {
+        const tA = a.real ? a.real.getTime() : a.ts;
+        const tB = b.real ? b.real.getTime() : b.ts;
+        return tA - tB;
+      });
+
+      const proximos = todos.filter(f => {
+        const active = f.est.delayed || f.est.preBoarding || f.est.boarding || f.est.landed || f.est.canceled || f.est.information;
+        return active || (f.ts >= now && f.ts <= max);
+      });
+
+      // Pasada la última salida del día no queda nada "por delante" y la API no
+      // entrega el día siguiente (ignora ?fecha=). Antes de dejar el tablero en
+      // blanco, mostramos la cola de lo que NAABOL sigue listando — que es
+      // justamente lo que muestra su página oficial.
+      return proximos.length
+        ? proximos.slice(0, maxFlights())
+        : todos.slice(-maxFlights());
     }
 
     // ===== DOM RENDERING =====
