@@ -90,10 +90,10 @@ function categorizeStatus(obsEs, obsEn) {
   return 'other';
 }
 
-// Re-categoriza un vuelo "on-time" como "delayed" si la diff entre horaReal y
-// horaProgramada supera el threshold (default 15 min). NAABOL sigue marcando
+// Re-categoriza un vuelo "on-time" como "delayed" ante cualquier demora positiva
+// entre horaReal y horaProgramada. NAABOL sigue marcando
 // CONFIRMADO incluso cuando hay retraso evidente — esta función lo detecta.
-function adjustForDelay(category, horaProgramada, horaReal, thresholdMin = 15) {
+function adjustForDelay(category, horaProgramada, horaReal) {
   if (category !== 'on-time') return category; // ya tiene un estado más fuerte
   if (!horaProgramada || !horaReal) return category;
   const [hp, mp] = horaProgramada.split(':').map(Number);
@@ -102,7 +102,7 @@ function adjustForDelay(category, horaProgramada, horaReal, thresholdMin = 15) {
   let diff = hr * 60 + mr - (hp * 60 + mp);
   // si cruza medianoche al revés, asume retraso (no adelanto de >12h)
   if (diff < -12 * 60) diff += 24 * 60;
-  if (diff > thresholdMin) return 'delayed';
+  if (diff > 0) return 'delayed';
   return category;
 }
 
