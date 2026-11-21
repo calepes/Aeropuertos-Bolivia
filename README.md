@@ -45,7 +45,7 @@ El loader descarga la última versión desde GitHub y mantiene cache local en iC
 
 ## Fuente de datos
 
-Endpoints públicos de [NAABOL](https://fids.naabol.gob.bo) (itinerario y operativo), accedidos via proxy CORS en Cloudflare Workers.
+El tablero usa el itinerario público de [NAABOL](https://fids.naabol.gob.bo) mediante un proxy CORS en Cloudflare Workers.
 
 ## Tests
 

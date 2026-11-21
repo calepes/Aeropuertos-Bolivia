@@ -61,9 +61,8 @@ Dos suites independientes:
 - **⚠️ Divergencia deliberada desde 2026-09-05:** el fix de fechas (`dateWithHHMM`) se aplicó SOLO a la PWA. `widget/helpers.js:114` y `widget/widget-vuelos-naabol.js:170` conservan el `todayWithHHMM` viejo con el bug del tablero en blanco de noche. Cal confirmó que **ya no usa el widget de iOS**, así que no se tocó. Si alguna vez se reactiva, portar el fix antes de usarlo.
 
 ### API NAABOL
-- Datos de vuelos vienen de `fids.naabol.gob.bo` — endpoints de itinerario (`HORA_ESTIMADA`) y
-  operativo (hora real + estado, hoy caído)
-- **Endpoint operativo NAABOL caído:** `/Fids/operativo/vuelos` devuelve 404 (reconfirmado 2026-09-05, responde HTML). PWA y widget funcionan solo con itinerario. Si vuelve, se usará automáticamente — por eso la rama `flightsFromOps` sigue en el código aunque hoy nunca ejecute (`opsMap` siempre vacío).
+- **PWA y CLI:** consultan `/Fids/itin/vuelos`, igual que el tablero oficial. El itinerario incluye `HORA_ESTIMADA`, `HORA_REAL`, `OBSERVACION` y `NRO_PUERTA` cuando están informados.
+- **Endpoint operativo NAABOL:** `/Fids/operativo/vuelos` sigue devolviendo 404 (reconfirmado 2026-11-21). Se retiró la consulta de la PWA. Solo queda en las copias históricas del widget.
 - **Solo devuelve HOY, y no acepta fecha.** Probados `?fecha=`, `?FECHA=` y `?dia=` (2026-09-05): los tres se ignoran, siempre responde el día en curso. No hay forma de traer el itinerario de mañana.
 - **`HORA_PROGRAMADA` no existe en el payload.** Los campos reales son `HORA_ESTIMADA` y `HORA_REAL`. Cualquier `f.HORA_PROGRAMADA || f.HORA_ESTIMADA` cae siempre al segundo.
 - **Cada fila trae `FECHA`** (ej. `"2026-09-05 00:00:00.000"`). Es la fuente de verdad del día — no inferirlo comparando la hora contra el reloj (ver el bug de abajo).

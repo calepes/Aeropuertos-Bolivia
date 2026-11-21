@@ -51,39 +51,42 @@ function board(fetchSource, innerHeight = 180) {
   return { get, calls, window, ...context };
 }
 
-const isItinerary = (url) => url.pathname.includes('/itin/');
-const rowIds = (app) => app.get('flights').children
-  .map((row) => row.children[4].children.map((flap) => flap.textContent).join(''));
+const columnText = (row, index) => row.children[index].children.map((flap) => flap.textContent).join('');
+const rowIds = (app) => app.get('flights').children.map((row) => columnText(row, 4));
 
-test('distingue tablero parcial, caída con respaldo, vacío válido y caída sin respaldo', async () => {
-  let mode = 'partial';
-  const app = board((url) => {
+test('usa el itinerario y conserva su hora real, estado y respaldo ante fallos', async () => {
+  let mode = 'success';
+  const app = board(() => {
     if (mode === 'empty') return response([]);
-    if (mode === 'partial' && isItinerary(url)) return response([flight('101')]);
-    if (mode === 'malformed') return response(isItinerary(url) ? [] : { error: 'no hay datos' });
+    if (mode === 'success') return response([{ ...flight('101'), HORA_REAL: '13:24', OBSERVACION: 'DEMORADO' }]);
+    if (mode === 'malformed') return response({ error: 'no hay datos' });
     return response(null, 503);
   });
   await flush();
+  assert.deepEqual(app.calls.map(url => url.pathname), ['/Fids/itin/vuelos']);
   assert.deepEqual(rowIds(app), ['101']);
-  assert.match(app.get('status').textContent, /Datos parciales/);
+  const first = app.get('flights').children[0];
+  assert.equal(columnText(first, 0), '13:24');
+  assert.equal(columnText(first, 6), 'DELAYED');
+  assert.equal(app.get('status').textContent, '');
   assert.match(app.get('footer').textContent, /01\/06\/2030/);
   const lastFooter = app.get('footer').textContent;
 
   mode = 'failure';
   await app.loadFlights();
   assert.deepEqual(rowIds(app), ['101']);
-  assert.match(app.get('status').textContent, /Fuentes no disponibles/);
+  assert.equal(app.get('status').textContent, 'Itinerario no disponible · Último tablero');
   assert.equal(app.get('footer').textContent, lastFooter);
 
   app.toggleFlightType();
   await flush();
   assert.deepEqual(rowIds(app), []);
-  assert.match(app.get('status').textContent, /Fuentes no disponibles/);
+  assert.equal(app.get('status').textContent, 'Itinerario no disponible');
   assert.equal(app.get('footer').textContent, '');
 
   mode = 'malformed';
   await app.loadFlights();
-  assert.equal(app.get('status').textContent, 'Datos parciales · Sin vuelos confirmados');
+  assert.equal(app.get('status').textContent, 'Itinerario no disponible');
 
   mode = 'empty';
   await app.loadFlights();
@@ -95,7 +98,7 @@ test('descarta una consulta tardía y redimensiona sin consultar ni perder filas
   const delayed = new Promise((resolve) => { finish = resolve; });
   const app = board((url) => {
     if (url.searchParams.get('aero') === 'Viru Viru') return delayed;
-    return response(isItinerary(url) ? Array.from({ length: 25 }, (_, i) => flight(String(200 + i))) : []);
+    return response(Array.from({ length: 25 }, (_, i) => flight(String(200 + i))));
   });
   const select = app.get('airport-select');
   select.value = 'LPB';
@@ -114,10 +117,10 @@ test('descarta una consulta tardía y redimensiona sin consultar ni perder filas
   assert.equal(app.calls.length, beforeResize);
   app.manualRefresh();
   await flush();
-  assert.equal(app.calls.length, beforeResize + 2);
-  assert.ok(app.calls.slice(-2).every((url) => url.searchParams.get('aero') === 'El Alto'));
+  assert.equal(app.calls.length, beforeResize + 1);
+  assert.equal(app.calls.at(-1).searchParams.get('aero'), 'El Alto');
   app.toggleFlightType();
   await flush();
-  assert.equal(app.calls.length, beforeResize + 4);
-  assert.ok(app.calls.slice(-2).every((url) => url.searchParams.get('tipo') === 'L'));
+  assert.equal(app.calls.length, beforeResize + 2);
+  assert.equal(app.calls.at(-1).searchParams.get('tipo'), 'L');
 });
