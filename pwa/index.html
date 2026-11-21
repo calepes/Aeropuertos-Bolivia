@@ -179,10 +179,11 @@
     /* Status message */
     #status {
       text-align: center;
-      padding: 30px 0;
+      padding: 8px 0;
       font-size: 13px;
-      color: #555;
+      color: #A1A1A6;
     }
+    #status:empty { padding: 0; }
     #status.error { color: #FF3D00; }
 
     /* Footer */
@@ -190,7 +191,7 @@
       text-align: center;
       padding: 4px 0;
       font-size: 9px;
-      color: #444;
+      color: #A1A1A6;
     }
   </style>
 </head>
@@ -219,7 +220,7 @@
       <span class="col-label col-rmks">REMARKS</span>
     </div>
     <div id="flights"></div>
-    <div id="status">Cargando...</div>
+    <div id="status" role="status">Cargando...</div>
     <div class="footer" id="footer"></div>
   </div>
   <script>
@@ -233,6 +234,7 @@
       const apt = document.querySelector('.airport-row');
       const cols = document.querySelector('.col-headers');
       const ftr = document.querySelector('.footer');
+      const status = document.getElementById('status');
       const board = document.querySelector('.board');
       const boardStyle = getComputedStyle(board);
       const padTop = parseFloat(boardStyle.paddingTop);
@@ -241,9 +243,9 @@
         + hdr.offsetHeight + parseFloat(getComputedStyle(hdr).marginBottom)
         + apt.offsetHeight + parseFloat(getComputedStyle(apt).marginBottom)
         + cols.offsetHeight + parseFloat(getComputedStyle(cols).marginBottom)
-        + ftr.offsetHeight;
+        + ftr.offsetHeight + status.offsetHeight;
       const available = window.innerHeight - chrome;
-      return Math.max(5, Math.ceil(available / ROW_HEIGHT));
+      return Math.max(5, Math.floor(available / ROW_HEIGHT));
     }
     const DEST_CHARS = 11;
     const RMKS_CHARS = 9;
@@ -386,23 +388,30 @@
     async function proxyFetch(url) {
       const r = await fetch(PROXY_URL + '/?url=' + encodeURIComponent(url));
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
+      const rows = await r.json();
+      if (!Array.isArray(rows) || rows.some(row => row?.NRO_VUELO == null)) {
+        throw new Error('Respuesta de vuelos inválida');
+      }
+      return rows;
     }
 
     // ===== FETCH + MERGE =====
-    async function fetchFlights(airportCode) {
+    async function fetchFlights(airportCode, tipo) {
       const airport = AIRPORTS[airportCode] || AIRPORTS.VVI;
-      const tipo = currentType;
       const urlItin = `https://fids.naabol.gob.bo/Fids/itin/vuelos?aero=${airport.query}&tipo=${tipo}`;
       const urlOps = `https://fids.naabol.gob.bo/Fids/operativo/vuelos?aero=${airport.query}&tipo=${tipo}`;
 
-      const [itin, ops] = await Promise.all([
-        proxyFetch(urlItin).catch(() => []),
-        proxyFetch(urlOps).catch(() => [])
+      const [itinerary, operations] = await Promise.allSettled([
+        proxyFetch(urlItin),
+        proxyFetch(urlOps)
       ]);
+      const partial = itinerary.status === 'rejected' || operations.status === 'rejected';
+      if (itinerary.status === 'rejected' && operations.status === 'rejected') return null;
+      const itin = itinerary.value ?? [];
+      const ops = operations.value ?? [];
 
       const opsMap = {};
-      for (const o of (Array.isArray(ops) ? ops : [])) {
+      for (const o of ops) {
         const code = airlineCode(o.NOMBRE_AEROLINEA);
         const num = String(o.NRO_VUELO || "").trim();
         const key = code ? `${code}${num}` : num;
@@ -413,7 +422,7 @@
       const max = now + HOURS_AHEAD * 3600 * 1000;
 
       const seenFlights = new Set();
-      const flightsFromItin = (Array.isArray(itin) ? itin : [])
+      const flightsFromItin = itin
         .map(f => {
           const prog = dateWithHHMM(f.FECHA, f.HORA_ESTIMADA);
           if (!prog) return null;
@@ -438,7 +447,7 @@
         })
         .filter(Boolean);
 
-      const flightsFromOps = (Array.isArray(ops) ? ops : [])
+      const flightsFromOps = ops
         .map(o => {
           const code = airlineCode(o.NOMBRE_AEROLINEA);
           const num = String(o.NRO_VUELO || "").trim();
@@ -481,9 +490,12 @@
       // entrega el día siguiente (ignora ?fecha=). Antes de dejar el tablero en
       // blanco, mostramos la cola de lo que NAABOL sigue listando — que es
       // justamente lo que muestra su página oficial.
-      return proximos.length
-        ? proximos.slice(0, maxFlights())
-        : todos.slice(-maxFlights());
+      return {
+        flights: proximos.length ? proximos : todos,
+        showLast: proximos.length === 0,
+        partial,
+        observedAt: now,
+      };
     }
 
     // ===== DOM RENDERING =====
@@ -540,17 +552,7 @@
 
     function renderBoard(flights) {
       const container = document.getElementById('flights');
-      const status = document.getElementById('status');
       container.innerHTML = '';
-
-      if (flights.length === 0) {
-        status.textContent = 'No hay vuelos programados';
-        status.className = '';
-        status.id = 'status';
-        return;
-      }
-
-      status.textContent = '';
 
       for (const f of flights) {
         const row = document.createElement('div');
@@ -613,18 +615,60 @@
     }
 
     // ===== LOAD + RENDER =====
-    async function loadFlights() {
+    const boards = new Map();
+    const boardTime = new Intl.DateTimeFormat('es-BO', {
+      timeZone: 'America/La_Paz',
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false,
+    });
+    let requestId = 0;
+    let boardKey;
+    let displayed;
+
+    function fitBoard() {
+      const flights = displayed?.flights ?? [];
+      const limit = maxFlights();
+      renderBoard(displayed?.showLast ? flights.slice(-limit) : flights.slice(0, limit));
+    }
+
+    function showBoard(board, message, error = false) {
+      displayed = board;
       const status = document.getElementById('status');
-      try {
-        const flights = await fetchFlights(currentAirport);
-        renderBoard(flights);
-        document.getElementById('footer').textContent =
-          'Actualizado: ' + new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false });
-      } catch (e) {
-        status.textContent = 'Error: ' + e.message;
-        status.className = 'error';
-        status.id = 'status';
+      status.textContent = message;
+      status.className = error ? 'error' : '';
+      document.getElementById('footer').textContent = board
+        ? 'Datos de ' + boardTime.format(board.observedAt) + ' (Bolivia)' : '';
+      fitBoard();
+    }
+
+    async function loadFlights() {
+      const airport = currentAirport;
+      const type = currentType;
+      const key = airport + ':' + type;
+      const id = ++requestId;
+      const previous = boards.get(key);
+      if (boardKey !== key) {
+        boardKey = key;
+        showBoard(previous, 'Actualizando…');
       }
+      let board;
+      try {
+        board = await fetchFlights(airport, type);
+      } catch {
+        board = null;
+      }
+      if (id !== requestId) return;
+      if (!board) {
+        showBoard(previous, previous
+          ? 'Fuentes no disponibles · Último tablero' : 'Fuentes no disponibles', true);
+        return;
+      }
+      if (board.partial && board.flights.length === 0) {
+        showBoard(previous, previous
+          ? 'Datos parciales · Último tablero' : 'Datos parciales · Sin vuelos confirmados');
+        return;
+      }
+      boards.set(key, board);
+      showBoard(board, board.partial ? 'Datos parciales' : board.flights.length ? '' : 'No hay vuelos programados');
     }
 
     function manualRefresh() {
@@ -660,7 +704,7 @@
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => loadFlights(), 200);
+      resizeTimer = setTimeout(fitBoard, 200);
     });
 
     // ===== INIT =====
